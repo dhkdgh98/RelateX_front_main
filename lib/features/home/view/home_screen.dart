@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'home_widgets/recordBoxWidget.dart';
 import 'home_widgets/weekCalendar.dart';
 import 'home_widgets/timelineList.dart';
+import '../model/home_model.dart'; // üëà entries Î™®Îç∏ÏùÑ Î∂àÎü¨Ïò§Í∏∞
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -16,20 +17,40 @@ class _HomeScreenState extends State<HomeScreen> {
   bool showRecordBox = true;
   double lastScrollPosition = 0;
 
+  DateTime selectedDate = DateTime.now();
+  late List<TimelineEntry> entries;
+
   @override
   void initState() {
     super.initState();
+
+    entries = mockEntries; // ÎÇòÏ§ëÏóê ÏÑúÎ≤Ñ Ïó∞Îèô Ïãú entries Î∞îÍøîÏ£ºÎ©¥ Îèº
+    entries.sort((a, b) => b.date.compareTo(a.date));
+
+    if (entries.isNotEmpty) {
+      selectedDate = entries.first.date;
+    }
 
     _scrollController.addListener(() {
       final currentPosition = _scrollController.offset;
       final isScrollingUp = currentPosition < lastScrollPosition;
 
+      // Í∞ÄÏû• ÏúÑÏóê ÏûàÎäî Ìï≠Î™©ÏùÑ Í∏∞Ï§ÄÏúºÎ°ú selectedDate Í∞±Ïã†
+      if (_scrollController.position.pixels == 0) {
+        setState(() {
+          selectedDate = entries.first.date; // Î¶¨Ïä§Ìä∏ Îß® ÏúÑÎ°ú Ïä§ÌÅ¨Î°§Îê† Îïå
+        });
+      } else {
+        final index = (_scrollController.offset / 100).floor(); // Ìï≠Î™© Í∞ÑÍ≤©Ïóê ÎßûÏ∂∞ÏÑú ÏÑ†ÌÉùÎêú ÎÇ†Ïßú Ï∞æÍ∏∞
+        setState(() {
+          selectedDate = entries[index].date;
+        });
+      }
+
       setState(() {
         if (currentPosition <= 0) {
-          // ∏« ¿ß∑Œ Ω∫≈©∑— µ«æ˙¿ª ∂ß ¥ŸΩ√ ∫∏ø©¡÷±‚
           showRecordBox = true;
         } else if (isScrollingUp) {
-          // ¿ß∑Œ Ω∫≈©∑—«œ∏È º˚±‚±‚
           showRecordBox = false;
         }
       });
@@ -66,15 +87,23 @@ class _HomeScreenState extends State<HomeScreen> {
                         RecordBoxWidget(),
                       ],
                     )
-                  : const WeekCalendarHeader(
-                      key: ValueKey("weekCalendar"),
+                  : WeekCalendarHeader(
+                      key: const ValueKey("weekCalendar"),
+                      selectedDate: selectedDate,
+                      onDateSelected: (newDate) {
+                        setState(() {
+                          selectedDate = newDate;
+                        });
+                      },
                     ),
             ),
             Expanded(
               child: ListView(
                 controller: _scrollController,
-                children: const [
-                  TimelineListView(),
+                children: [
+                  TimelineListView(
+                    entries: entries,
+                  ),
                 ],
               ),
             ),
