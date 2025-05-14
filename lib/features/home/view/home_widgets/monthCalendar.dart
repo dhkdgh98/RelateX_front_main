@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-// �ս� Ķ������ ǥ���ϴ� ����
+/// 월간 캘린더를 표시하는 위젯
 class MonthCalendarView extends StatelessWidget {
   const MonthCalendarView({super.key});
 
@@ -30,8 +30,9 @@ class MonthCalendarView extends StatelessWidget {
             ),
           ),
           SizedBox(height: 16),
-          // �޷� ���̾ƿ��� ���⿡ �߰�
-          // ���� ��� GridView�� ����� �� ����
+
+          // TODO: 여기에 캘린더 격자 뷰 추가 예정
+          // 예: GridView 등을 사용하여 월간 일정 출력하기
         ],
       ),
     );

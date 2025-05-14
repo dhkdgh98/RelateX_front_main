@@ -2,9 +2,6 @@ import 'package:flutter/material.dart';
 import 'home_widgets/recordBoxWidget.dart';
 import 'home_widgets/weekCalendar.dart';
 import 'home_widgets/timelineList.dart';
-import 'package:flutter/gestures.dart';
-import 'package:flutter/widgets.dart';
-import 'package:flutter/rendering.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -25,20 +22,17 @@ class _HomeScreenState extends State<HomeScreen> {
     _scrollController.addListener(() {
       final currentPosition = _scrollController.offset;
       final isScrollingUp = currentPosition < lastScrollPosition;
-      
+
       setState(() {
         if (currentPosition <= 0) {
-          // ìµœìƒë‹¨ì—ì„œëŠ” RecordBox í‘œì‹œ
+          // ¸Ç À§·Î ½ºÅ©·Ñ µÇ¾úÀ» ¶§ RecordBox Ç¥½Ã
           showRecordBox = true;
         } else if (isScrollingUp) {
-          // ìœ„ë¡œ ìŠ¤í¬ë¡¤í•˜ë©´ WeekCalendar í‘œì‹œ
+          // À§·Î ½ºÅ©·ÑÇÏ¸é WeekCalendar Ç¥½Ã
           showRecordBox = false;
-        } else if (!isScrollingUp && currentPosition > 100) {
-          // ì•„ë˜ë¡œ ìŠ¤í¬ë¡¤í•˜ê³  ìœ„ì¹˜ê°€ 100 ì´ˆê³¼ì¼ ë•Œ RecordBox í‘œì‹œ
-          showRecordBox = true;
-        }
+        } 
       });
-      
+
       lastScrollPosition = currentPosition;
     });
   }
