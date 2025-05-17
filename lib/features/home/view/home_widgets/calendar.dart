@@ -1,9 +1,7 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-enum CalendarView { day, week, month, year }
+enum CalendarView { day, month, year }
 
 class CalendarModal extends StatefulWidget {
   const CalendarModal({super.key});
@@ -64,103 +62,196 @@ class _CalendarModalState extends State<CalendarModal> {
     });
   }
 
-  bool _isDateSelected(DateTime date) {
-  if (_isRangeEnabled && _rangeStart != null && _rangeEnd != null) {
-    // 시작일과 종료일 '포함'해서 체크
-    return !date.isBefore(_rangeStart!) && !date.isAfter(_rangeEnd!);
-  } else {
-    return date.year == _selectedDate.year &&
-        date.month == _selectedDate.month &&
-        date.day == _selectedDate.day;
-  }
+
+bool _isToday(DateTime date) {
+  final now = DateTime.now();
+  return date.year == now.year &&
+      date.month == now.month &&
+      date.day == now.day;
 }
 
 
-  @override
-  Widget build(BuildContext context) {
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            // 상단 컨트롤
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                TextButton.icon(
-                  onPressed: () {
-                    setState(() {
-                      _isRangeEnabled = !_isRangeEnabled;
-                    });
-                  },
-                  icon: Icon(
-                    _isRangeEnabled ? Icons.check_box : Icons.check_box_outline_blank,
-                  ),
-                  label: const Text('기간 선택'),
-                ),
-                DropdownButton<CalendarView>(
-                  value: _currentView,
-                  underline: const SizedBox(),
-                  onChanged: (CalendarView? newView) {
-                    if (newView != null) {
+  
+@override
+Widget build(BuildContext context) {
+  return SafeArea(
+    child: Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        children: [
+          // 상단 컨트롤
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  TextButton.icon(
+                    onPressed: () {
                       setState(() {
-                        _currentView = newView;
+                        _isRangeEnabled = !_isRangeEnabled;
                       });
-                    }
-                  },
-                  items: const [
-                    DropdownMenuItem(value: CalendarView.day, child: Text('일')),
-                    DropdownMenuItem(value: CalendarView.week, child: Text('주')),
-                    DropdownMenuItem(value: CalendarView.month, child: Text('월')),
-                    DropdownMenuItem(value: CalendarView.year, child: Text('년')),
-                  ],
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            _buildHeader(),
-            const SizedBox(height: 8),
-            Expanded(child: _buildCalendarContent()),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildHeader() {
-    return Row(
-      mainAxisAlignment: _currentView == CalendarView.year
-          ? MainAxisAlignment.spaceBetween
-          : MainAxisAlignment.center,
-      children: [
-        IconButton(onPressed: _goToPrevious, icon: const Icon(Icons.chevron_left)),
-        if (_currentView != CalendarView.year) const SizedBox(width: 8),
-        if (_currentView != CalendarView.year)
-          Text(
-            _currentView == CalendarView.month
-                ? '${_selectedDate.year}년'
-                : DateFormat('yyyy년 M월').format(_selectedDate),
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-          )
-        else
-          Text(
-            () {
-              final startYear = (_selectedDate.year ~/ 10) * 10;
-              final endYear = startYear + 9;
-              return '$startYear년 ~ $endYear년';
-            }(),
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    },
+                    icon: Icon(
+                      _isRangeEnabled ? Icons.check_box : Icons.check_box_outline_blank,
+                    ),
+                    label: const Text('기간 선택'),
+                  ),
+                  const SizedBox(width: 8),
+                  // ✅ 초기화 버튼
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _rangeStart = null;
+                        _rangeEnd = null;
+                        _selectedDate = DateTime.now();
+                      });
+                    },
+                    child: Container(
+                      width: 32,
+                      height: 32,
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade200,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.refresh, size: 18, color: Colors.black87),
+                    ),
+                  ),
+                ],
+              ),
+              // 뷰 전환 드롭다운
+              DropdownButton<CalendarView>(
+                value: _currentView,
+                underline: const SizedBox(),
+                onChanged: (CalendarView? newView) {
+                  if (newView != null) {
+                    setState(() {
+                      _currentView = newView;
+                    });
+                  }
+                },
+                items: const [
+                  DropdownMenuItem(value: CalendarView.day, child: Text('일')),
+                  DropdownMenuItem(value: CalendarView.month, child: Text('월')),
+                  DropdownMenuItem(value: CalendarView.year, child: Text('년')),
+                ],
+              ),
+            ],
           ),
-        if (_currentView != CalendarView.year) const SizedBox(width: 8),
-        IconButton(onPressed: _goToNext, icon: const Icon(Icons.chevron_right)),
+          const SizedBox(height: 3),
+          _buildHeader(),
+          const SizedBox(height: 8),
+          Expanded(child: _buildCalendarContent()),
+        ],
+      ),
+    ),
+  );
+}
+
+  
+Widget _buildHeader() {
+  return Column(
+    children: [
+      if (_isRangeEnabled) _buildRangeInputFields(), // ✅ 맨 위에 추가!
+      Row(
+        mainAxisAlignment: _currentView == CalendarView.year
+            ? MainAxisAlignment.spaceBetween
+            : MainAxisAlignment.center,
+        children: [
+          IconButton(onPressed: _goToPrevious, icon: const Icon(Icons.chevron_left)),
+          if (_currentView != CalendarView.year) const SizedBox(width: 8),
+          if (_currentView != CalendarView.year)
+            Text(
+              _currentView == CalendarView.month
+                  ? '${_selectedDate.year}년'
+                  : DateFormat('yyyy년 M월').format(_selectedDate),
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            )
+          else
+            Text(
+              () {
+                final startYear = (_selectedDate.year ~/ 10) * 10;
+                final endYear = startYear + 9;
+                return '$startYear년 ~ $endYear년';
+              }(),
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+          if (_currentView != CalendarView.year) const SizedBox(width: 8),
+          IconButton(onPressed: _goToNext, icon: const Icon(Icons.chevron_right)),
+        ],
+      ),
+    ],
+  );
+}
+
+Widget _buildRangeInputFields() {
+  return Padding(
+    padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 12.0),
+    child: Row(
+      children: [
+        _buildDateInputField(
+          label: '시작일',
+          initialDate: _rangeStart,
+          onDateParsed: (date) => setState(() => _rangeStart = date),
+        ),
+        const SizedBox(width: 12),
+        _buildDateInputField(
+          label: '종료일',
+          initialDate: _rangeEnd,
+          onDateParsed: (date) => setState(() => _rangeEnd = date),
+        ),
       ],
-    );
-  }
+    ),
+  );
+}
+
+Widget _buildDateInputField({
+  required String label,
+  required DateTime? initialDate,
+  required void Function(DateTime) onDateParsed,
+}) {
+  final controller = TextEditingController(
+    text: initialDate != null ? DateFormat('yyyy.MM.dd').format(initialDate) : '',
+  );
+
+  return Expanded(
+    child: TextField(
+      controller: controller,
+      style: const TextStyle(fontSize: 13), // ✅ 폰트 작게
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: const TextStyle(fontSize: 12),
+        isDense: true,
+        contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+        hintText: '예: 20200101',
+        hintStyle: const TextStyle(fontSize: 12),
+      ),
+      keyboardType: TextInputType.number,
+      onSubmitted: (value) {
+        final cleaned = value.replaceAll(RegExp(r'[^0-9]'), '');
+        if (cleaned.length == 8) {
+          final year = int.tryParse(cleaned.substring(0, 4));
+          final month = int.tryParse(cleaned.substring(4, 6));
+          final day = int.tryParse(cleaned.substring(6, 8));
+          if (year != null && month != null && day != null) {
+            try {
+              final date = DateTime(year, month, day);
+              onDateParsed(date);
+            } catch (_) {
+              // 날짜 형식 오류 무시
+            }
+          }
+        }
+      },
+    ),
+  );
+}
+
 
   Widget _buildCalendarContent() {
     switch (_currentView) {
       case CalendarView.day:
-      case CalendarView.week:
+
         return _buildMonthCalendar();
       case CalendarView.month:
         return _buildMonthGrid();
@@ -190,10 +281,8 @@ Widget _buildMonthCalendar() {
       bool isRangeSelected = false;
 
       if (_rangeStart != null && _rangeEnd != null) {
-        // 시작일과 종료일 모두 선택되었을 때 범위 전체 강조
         isRangeSelected = !currentDate.isBefore(_rangeStart!) && !currentDate.isAfter(_rangeEnd!);
       } else if (_rangeStart != null && _rangeEnd == null) {
-        // 시작일만 선택됐을 때는 시작일만 강조
         isRangeSelected = currentDate == _rangeStart;
       }
 
@@ -202,18 +291,21 @@ Widget _buildMonthCalendar() {
           currentDate.month == _selectedDate.month &&
           currentDate.day == _selectedDate.day;
 
+      final isToday = currentDate.year == DateTime.now().year &&
+          currentDate.month == DateTime.now().month &&
+          currentDate.day == DateTime.now().day;
+
       return GestureDetector(
         onTap: () => _onDateSelected(currentDate),
         child: Container(
           margin: const EdgeInsets.all(4),
           decoration: BoxDecoration(
-            // color: isRangeSelected || isSingleSelected
-            //     ? Colors.blue
-            //     : null,
             color: isRangeSelected || isSingleSelected
-    ? Colors.grey.withOpacity(0.3)  // 여기 밝은 회색에 투명도 0.3으로 바꿨어~
-    : null,
-
+                ? Colors.grey.withOpacity(0.3)
+                : null,
+            border: isToday
+                ? Border.all(color: Colors.black, width: 1.5)
+                : null,
             borderRadius: BorderRadius.circular(8),
           ),
           alignment: Alignment.center,
@@ -230,27 +322,37 @@ Widget _buildMonthCalendar() {
   );
 }
 
+Widget _buildMonthGrid() {
+  return GridView.builder(
+    itemCount: 12,
+    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 4),
+    itemBuilder: (context, index) {
+      final month = index + 1;
 
-  Widget _buildMonthGrid() {
-    return GridView.builder(
-      itemCount: 12,
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 4),
-      itemBuilder: (context, index) {
-        final month = index + 1;
-        final currentDate = DateTime(_selectedDate.year, month);
-        return GestureDetector(
-          onTap: () {
-            _onDateSelected(currentDate);
-            setState(() {
-              _selectedDate = currentDate;
-              _currentView = CalendarView.day; // 월 선택 시 일간으로 전환
-            });
-          },
-          child: Center(child: Text('$month월')),
-        );
-      },
-    );
-  }
+      return GestureDetector(
+        onTap: () {
+          setState(() {
+            _selectedDate = DateTime(_selectedDate.year, month, _selectedDate.day);
+            _currentView = CalendarView.day;
+          });
+        },
+        child: Container(
+          margin: const EdgeInsets.all(4),
+          child: Center(
+            child: Text(
+              '$month월',
+              style: const TextStyle(
+                fontWeight: FontWeight.w500,
+                color: Colors.black, // ✅ 고정된 텍스트 색상
+              ),
+            ),
+          ),
+        ),
+      );
+    },
+  );
+}
+
 
 
 
@@ -262,14 +364,14 @@ Widget _buildYearGrid() {
     itemBuilder: (context, index) {
       final year = startYear + index;
       final currentDate = DateTime(year, 1, 1);
-      final isSelected = _isDateSelected(currentDate);
+      final isSelected = _isToday(currentDate);
 
       return GestureDetector(
         onTap: () {
-          _onDateSelected(currentDate);
           setState(() {
-            _selectedDate = currentDate;
-            _currentView = CalendarView.month; // 년도 선택 시 월 보기로 전환
+            // ✅ 날짜 선택은 하지 않고, 월 보기로만 전환
+            _selectedDate = DateTime(year, _selectedDate.month, _selectedDate.day);
+            _currentView = CalendarView.month;
           });
         },
         child: Container(
