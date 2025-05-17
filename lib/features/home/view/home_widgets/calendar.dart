@@ -16,17 +16,29 @@ class _CalendarModalState extends State<CalendarModal> {
   DateTime _selectedDate = DateTime.now();
   bool _isRangeEnabled = false;
 
-  void _goToPreviousMonth() {
+  void _goToPrevious() {
     setState(() {
-      _selectedDate = DateTime(_selectedDate.year, _selectedDate.month - 1);
-      print('이전 달로 이동: $_selectedDate');
+      if (_currentView == CalendarView.month) {
+        _selectedDate = DateTime(_selectedDate.year - 1, _selectedDate.month);
+      } else if (_currentView == CalendarView.year) {
+        _selectedDate = DateTime(_selectedDate.year - 10);
+      } else {
+        _selectedDate = DateTime(_selectedDate.year, _selectedDate.month - 1);
+      }
+      print('이전 이동: $_selectedDate');
     });
   }
 
-  void _goToNextMonth() {
+  void _goToNext() {
     setState(() {
-      _selectedDate = DateTime(_selectedDate.year, _selectedDate.month + 1);
-      print('다음 달로 이동: $_selectedDate');
+      if (_currentView == CalendarView.month) {
+        _selectedDate = DateTime(_selectedDate.year + 1, _selectedDate.month);
+      } else if (_currentView == CalendarView.year) {
+        _selectedDate = DateTime(_selectedDate.year + 10);
+      } else {
+        _selectedDate = DateTime(_selectedDate.year, _selectedDate.month + 1);
+      }
+      print('다음 이동: $_selectedDate');
     });
   }
 
@@ -37,7 +49,6 @@ class _CalendarModalState extends State<CalendarModal> {
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          mainAxisSize: MainAxisSize.min,
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -87,41 +98,50 @@ class _CalendarModalState extends State<CalendarModal> {
               ],
             ),
             const SizedBox(height: 16),
-            _buildCalendarContent(),
+            _buildHeader(),
+            const SizedBox(height: 8),
+            Expanded(child: _buildCalendarContent()),
           ],
         ),
       ),
     );
   }
 
+  
+
+Widget _buildHeader() {
+  return Row(
+    mainAxisAlignment: _currentView == CalendarView.year
+        ? MainAxisAlignment.spaceBetween
+        : MainAxisAlignment.center,
+    children: [
+      IconButton(onPressed: _goToPrevious, icon: const Icon(Icons.chevron_left)),
+      if (_currentView != CalendarView.year) const SizedBox(width: 8),
+      if (_currentView != CalendarView.year)
+        Text(
+          _currentView == CalendarView.month
+              ? '${_selectedDate.year}년'
+              : DateFormat('yyyy년 M월').format(_selectedDate),
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        )
+      else
+        Text(
+          () {
+            final startYear = (_selectedDate.year ~/ 10) * 10;
+            final endYear = startYear + 9;
+            return '$startYear년 ~ $endYear년';
+          }(),
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
+      if (_currentView != CalendarView.year) const SizedBox(width: 8),
+      IconButton(onPressed: _goToNext, icon: const Icon(Icons.chevron_right)),
+    ],
+  );
+}
+
+
   Widget _buildCalendarContent() {
     print('Building calendar content for $_currentView');
-    return Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            IconButton(
-              icon: const Icon(Icons.chevron_left),
-              onPressed: _goToPreviousMonth,
-            ),
-            Text(
-              DateFormat('yyyy년 M월').format(_selectedDate),
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            IconButton(
-              icon: const Icon(Icons.chevron_right),
-              onPressed: _goToNextMonth,
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        _buildCurrentView(),
-      ],
-    );
-  }
-
-  Widget _buildCurrentView() {
     switch (_currentView) {
       case CalendarView.day:
       case CalendarView.week:
@@ -134,25 +154,21 @@ class _CalendarModalState extends State<CalendarModal> {
   }
 
   Widget _buildMonthCalendar() {
-    final firstDayOfMonth = DateTime(_selectedDate.year, _selectedDate.month, 1);
     final daysInMonth = DateUtils.getDaysInMonth(_selectedDate.year, _selectedDate.month);
-    print('Generating calendar for ${_selectedDate.year}-${_selectedDate.month}, $daysInMonth days');
+    final firstDayOfMonth = DateTime(_selectedDate.year, _selectedDate.month, 1);
+    final weekdayOffset = firstDayOfMonth.weekday % 7;
+
+    final totalGridCount = weekdayOffset + daysInMonth;
     return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: daysInMonth,
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 7,
-        mainAxisSpacing: 8,
-        crossAxisSpacing: 8,
-      ),
+      itemCount: totalGridCount,
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 7),
       itemBuilder: (context, index) {
-        final day = firstDayOfMonth.add(Duration(days: index));
+        if (index < weekdayOffset) {
+          return const SizedBox.shrink();
+        }
+        final day = index - weekdayOffset + 1;
         return Center(
-          child: Text(
-            '${day.day}',
-            style: const TextStyle(fontSize: 16),
-          ),
+          child: Text('$day'),
         );
       },
     );
@@ -160,46 +176,29 @@ class _CalendarModalState extends State<CalendarModal> {
 
   Widget _buildMonthGrid() {
     return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
       itemCount: 12,
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 4,
-        mainAxisSpacing: 8,
-        crossAxisSpacing: 8,
-      ),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 4),
       itemBuilder: (context, index) {
+        final month = index + 1;
         return Center(
-          child: Text(
-            '${index + 1}월',
-            style: const TextStyle(fontSize: 16),
-          ),
+          child: Text('$month월'),
         );
       },
     );
   }
 
   Widget _buildYearGrid() {
-    final currentYear = _selectedDate.year;
-    final startYear = currentYear - (currentYear % 10);
+    final startYear = (_selectedDate.year ~/ 10) * 10;
     return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: 12,
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 4,
-        mainAxisSpacing: 8,
-        crossAxisSpacing: 8,
-      ),
+      itemCount: 10,
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 4),
       itemBuilder: (context, index) {
         final year = startYear + index;
         return Center(
-          child: Text(
-            '$year년',
-            style: const TextStyle(fontSize: 16),
-          ),
+          child: Text('$year년'),
         );
       },
     );
   }
-} 
+}
+
