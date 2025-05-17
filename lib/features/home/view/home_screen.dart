@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 import 'home_widgets/recordBoxWidget.dart';
 import 'home_widgets/timelineList.dart';
 import '../model/home_model.dart';
-import 'home_widgets/chat_floating_button.dart'; // ✅ 오빠가 만든 챗 위젯
+import 'home_widgets/chat_floating_button.dart';
+import 'home_widgets/buttons.dart'; // ✅ 버튼 묶음 위젯!
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -81,6 +82,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       )
                     : const SizedBox.shrink(),
               ),
+
               // ✅ 타임라인 리스트
               Expanded(
                 child: ListView(
@@ -94,17 +96,29 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
 
-        // ✅ 챗봇 플로팅 버튼 (스크롤 시 아래로 사라지게)
-        Positioned(
-          bottom: 30,
-          right: 20,
-          child: AnimatedSlide(
-            offset: showRecordBox ? Offset.zero : const Offset(0, 1.5), // 아래로 사라지게
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeInOut,
-            child: const ChatFloatingButton(),
+        // ✅ showRecordBox가 true일 때 챗봇 버튼 보이고,
+        // false일 땐 버튼 묶음 보여주기!
+        if (showRecordBox)
+          Positioned(
+            bottom: 30,
+            right: 20,
+            child: AnimatedSlide(
+              offset: Offset.zero,
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+              child: const ChatFloatingButton(),
+            ),
+          )
+        else
+          Buttons(
+            onScrollToTop: () {
+              _scrollController.animateTo(
+                0,
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeOut,
+              );
+            },
           ),
-        ),
       ],
     );
   }
