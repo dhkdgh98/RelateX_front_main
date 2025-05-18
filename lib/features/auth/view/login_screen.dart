@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../bottom_nav/view/bottom_nav_screen.dart';
-
+import 'signup_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -115,15 +115,30 @@ class _LoginScreenState extends State<LoginScreen> {
                         style: TextStyle(color: Colors.black),
                       ),
                     ),
-                    TextButton(
-                      onPressed: () {},
-                      child: const Text(
-                        '회원가입',
-                        style: TextStyle(color: Colors.black),
+                //     TextButton(
+                //       onPressed: () {},
+                //       child: const Text(
+                //         '회원가입',
+                //         style: TextStyle(color: Colors.black),
+                //       ),
+                //     ),
+                //   ],
+                // ),
+
+                TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const SignupScreen()),
+                            );
+                          },
+                          child: const Text(
+                          '회원가입',
+                          style: TextStyle(color: Colors.black),
+                        ),
                       ),
-                    ),
-                  ],
-                ),
+                    ],
+                  ),
                 SizedBox(height: MediaQuery.of(context).size.height * 0.05), // 반응형 높이
 
                 
