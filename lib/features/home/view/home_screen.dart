@@ -71,8 +71,10 @@ class _HomeScreenState extends State<HomeScreen> {
                             child: Text(
                               'Relate X',
                               style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
+                                fontFamily: 'CourierPrime',
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,  // 이 부분 추가
+                                fontStyle: FontStyle.normal,   // 이 부분 추가
                                 color: Colors.black,
                               ),
                             ),

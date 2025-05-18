@@ -1,5 +1,3 @@
-
-
 import 'package:flutter/material.dart';
 import '../../bottom_nav/view/bottom_nav_screen.dart';
 
@@ -29,15 +27,15 @@ class _LoginScreenState extends State<LoginScreen> {
               children: [
                 // 로그인 텍스트 라벨
                 Text(
-  'Relate X',
-  style: TextStyle(
-    fontFamily: 'CourierPrime',
-    fontSize: 28,
-    fontWeight: FontWeight.normal,  // 이 부분 추가
-    fontStyle: FontStyle.normal,   // 이 부분 추가
-    color: Colors.black,
-  ),
-),
+                  'Relate X',
+                  style: TextStyle(
+                    fontFamily: 'CourierPrime',
+                    fontSize: 28,
+                    fontWeight: FontWeight.normal,  // 이 부분 추가
+                    fontStyle: FontStyle.normal,   // 이 부분 추가
+                    color: Colors.black,
+                  ),
+                ),
 
 
                 SizedBox(height: MediaQuery.of(context).size.height * 0.05), // 반응형 높이
@@ -76,9 +74,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     onPressed: () {
                       // 로그인 기능을 구현할 곳
                       Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => const BottomNavScreen()),
-                    );
+                        context,
+                        MaterialPageRoute(builder: (context) => const BottomNavScreen()),
+                      );
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.black,
@@ -128,85 +126,128 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 SizedBox(height: MediaQuery.of(context).size.height * 0.05), // 반응형 높이
 
-                // SNS 소셜 로그인 텍스트 라벨
-                Text(
-                  'SNS 소셜 로그인',
-                  style: TextStyle(
-                    fontFamily: 'RobotoMono', // 로컬 폰트 적용
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
-                ),
-                SizedBox(height: MediaQuery.of(context).size.height * 0.02), // 반응형 높이
+                
 
-                // SNS 로그인 버튼들 (카카오톡, 구글, 네이버)
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // 카카오톡 버튼
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () {},
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.yellow.shade800,
-                          padding: const EdgeInsets.symmetric(vertical: 10.0),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8.0),
-                          ),
+                    const Text(
+                      'SNS 소셜 로그인',
+                      style: TextStyle(
+                      
+                        color: Colors.black,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    SizedBox(height: MediaQuery.of(context).size.height * 0.04),
+
+                    // Google 버튼
+                    ElevatedButton(
+                      onPressed: () {},
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 14.0),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.0),
                         ),
-                        child: const Text(
-                          '카카오톡',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
+                        elevation: 2,
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Image.asset(
+                            'assets/icons/google.png',
+                            width: 24,
+                            height: 24,
                           ),
-                        ),
+                          const SizedBox(width: 8),
+                          const Flexible(
+                            child: Text(
+                              'Google로 시작하기',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.black87,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(width: 10),
-                    // 구글 버튼
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () {},
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red.shade600,
-                          padding: const EdgeInsets.symmetric(vertical: 10.0),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8.0),
-                          ),
+                    const SizedBox(height: 12),
+
+                    // Kakao 버튼
+                    ElevatedButton(
+                      onPressed: () {},
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFFEE500),
+                        padding: const EdgeInsets.symmetric(vertical: 14.0),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.0),
                         ),
-                        child: const Text(
-                          '구글',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
+                        elevation: 2,
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Image.asset(
+                            'assets/icons/kakaotalk.png',
+                            width: 24,
+                            height: 24,
                           ),
-                        ),
+                          const SizedBox(width: 8),
+                          const Flexible(
+                            child: Text(
+                              'Kakao로 시작하기',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.black87,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(width: 10),
-                    // 네이버 버튼
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () {},
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green.shade700,
-                          padding: const EdgeInsets.symmetric(vertical: 10.0),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8.0),
-                          ),
+                    const SizedBox(height: 12),
+
+                    // Naver 버튼
+                    ElevatedButton(
+                      onPressed: () {},
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF03C75A),
+                        padding: const EdgeInsets.symmetric(vertical: 14.0),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.0),
                         ),
-                        child: const Text(
-                          '네이버',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
+                        elevation: 2,
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Image.asset(
+                            'assets/icons/naver.png',
+                            width: 24,
+                            height: 24,
                           ),
-                        ),
+                          const SizedBox(width: 8),
+                          const Flexible(
+                            child: Text(
+                              'Naver로 시작하기',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
