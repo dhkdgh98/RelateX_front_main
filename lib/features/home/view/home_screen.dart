@@ -6,6 +6,7 @@ import 'home_widgets/timelineList.dart';
 import '../model/home_model.dart';
 import 'home_widgets/chat_floating_button.dart';
 import 'home_widgets/buttons.dart'; // ✅ 버튼 묶음 위젯!
+import '../../settings/view/setting_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -49,42 +50,90 @@ class _HomeScreenState extends State<HomeScreen> {
     super.dispose();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        SafeArea(
-          child: Column(
-            children: [
-              // ✅ 위쪽 record 박스 영역 (스크롤 시 사라짐)
-              AnimatedSwitcher(
-                duration: const Duration(milliseconds: 300),
-                switchInCurve: Curves.easeOut,
-                switchOutCurve: Curves.easeIn,
-                child: showRecordBox
-                    ? Column(
-                        key: const ValueKey("recordBox"),
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
-                          Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
-                            child: Text(
-                              'Relate X',
-                              style: TextStyle(
-                                fontFamily: 'CourierPrime',
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,  // 이 부분 추가
-                                fontStyle: FontStyle.normal,   // 이 부분 추가
-                                color: Colors.black,
+  // @override
+  // Widget build(BuildContext context) {
+  //   return Stack(
+  //     children: [
+  //       SafeArea(
+  //         child: Column(
+  //           children: [
+  //             // ✅ 위쪽 record 박스 영역 (스크롤 시 사라짐)
+  //             AnimatedSwitcher(
+  //               duration: const Duration(milliseconds: 300),
+  //               switchInCurve: Curves.easeOut,
+  //               switchOutCurve: Curves.easeIn,
+  //               child: showRecordBox
+  //                   ? Column(
+  //                       key: const ValueKey("recordBox"),
+  //                       crossAxisAlignment: CrossAxisAlignment.start,
+  //                       children: const [
+  //                         Padding(
+  //                           padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+  //                           child: Text(
+  //                             'Relate X',
+  //                             style: TextStyle(
+  //                               fontFamily: 'CourierPrime',
+  //                               fontSize: 20,
+  //                               fontWeight: FontWeight.bold,  // 이 부분 추가
+  //                               fontStyle: FontStyle.normal,   // 이 부분 추가
+  //                               color: Colors.black,
+  //                             ),
+  //                           ),
+  //                         ),
+  //                         RecordBoxWidget(),
+  //                       ],
+  //                     )
+  //                   : const SizedBox.shrink(),
+  //             ),
+@override
+Widget build(BuildContext context) {
+  return Stack(
+    children: [
+      SafeArea(
+        child: Column(
+          children: [
+            // ✅ 위쪽 record 박스 영역 (스크롤 시 사라짐)
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              switchInCurve: Curves.easeOut,
+              switchOutCurve: Curves.easeIn,
+              child: showRecordBox
+                  ? Column(
+                      key: const ValueKey("recordBox"),
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                                'Relate X',
+                                style: TextStyle(
+                                  fontFamily: 'CourierPrime',
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  fontStyle: FontStyle.normal,
+                                  color: Colors.black,
+                                ),
                               ),
-                            ),
+                              IconButton(
+                                icon: const Icon(Icons.settings),
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => const SettingScreen()),
+                                  );
+                                },
+                              ),
+                            ],
                           ),
-                          RecordBoxWidget(),
-                        ],
-                      )
-                    : const SizedBox.shrink(),
-              ),
-
+                        ),
+                        const RecordBoxWidget(),
+                      ],
+                    )
+                  : const SizedBox.shrink(),
+            ),
               // ✅ 타임라인 리스트
               Expanded(
                 child: ListView(
@@ -125,3 +174,5 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
+
+

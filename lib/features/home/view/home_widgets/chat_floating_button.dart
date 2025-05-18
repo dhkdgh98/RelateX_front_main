@@ -7,7 +7,7 @@ class ChatFloatingButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FloatingActionButton(
-      backgroundColor: const Color.fromARGB(216, 249, 247, 247),
+      backgroundColor: const Color.fromARGB(215, 0, 0, 0),
       onPressed: () {
         showModalBottomSheet(
           context: context,
