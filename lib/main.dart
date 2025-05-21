@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart'; // ✅ 추가
 import 'features/splash/view/splash_screen.dart';
+import 'features/auth/view/login_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -15,6 +16,12 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Relate X',
       debugShowCheckedModeBanner: false,
+
+      routes: {
+    '/login': (context) => const LoginScreen(), // 이걸 해야 '/login'으로 이동 가능
+  },
+
+      
 
       // ✅ 날짜 로컬라이제이션을 위한 설정 추가
       locale: const Locale('ko', 'KR'),
