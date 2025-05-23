@@ -1,32 +1,29 @@
-
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'home_widgets/recordBoxWidget.dart';
 import 'home_widgets/timelineList.dart';
 import '../model/home_model.dart';
+import '../model/home_provider.dart';
 import 'home_widgets/chat_floating_button.dart';
 import 'home_widgets/buttons.dart'; // ✅ 버튼 묶음 위젯!
 import '../../settings/view/setting_screen.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends ConsumerState<HomeScreen> {
   final ScrollController _scrollController = ScrollController();
   bool showRecordBox = true;
-  late List<TimelineEntry> entries;
   Timer? _debounce;
 
   @override
   void initState() {
     super.initState();
-
-    entries = mockEntries;
-    entries.sort((a, b) => b.date.compareTo(a.date));
 
     _scrollController.addListener(() {
       final currentPosition = _scrollController.offset;
@@ -50,127 +47,100 @@ class _HomeScreenState extends State<HomeScreen> {
     super.dispose();
   }
 
-  // @override
-  // Widget build(BuildContext context) {
-  //   return Stack(
-  //     children: [
-  //       SafeArea(
-  //         child: Column(
-  //           children: [
-  //             // ✅ 위쪽 record 박스 영역 (스크롤 시 사라짐)
-  //             AnimatedSwitcher(
-  //               duration: const Duration(milliseconds: 300),
-  //               switchInCurve: Curves.easeOut,
-  //               switchOutCurve: Curves.easeIn,
-  //               child: showRecordBox
-  //                   ? Column(
-  //                       key: const ValueKey("recordBox"),
-  //                       crossAxisAlignment: CrossAxisAlignment.start,
-  //                       children: const [
-  //                         Padding(
-  //                           padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
-  //                           child: Text(
-  //                             'Relate X',
-  //                             style: TextStyle(
-  //                               fontFamily: 'CourierPrime',
-  //                               fontSize: 20,
-  //                               fontWeight: FontWeight.bold,  // 이 부분 추가
-  //                               fontStyle: FontStyle.normal,   // 이 부분 추가
-  //                               color: Colors.black,
-  //                             ),
-  //                           ),
-  //                         ),
-  //                         RecordBoxWidget(),
-  //                       ],
-  //                     )
-  //                   : const SizedBox.shrink(),
-  //             ),
-@override
-Widget build(BuildContext context) {
-  return Stack(
-    children: [
-      SafeArea(
-        child: Column(
-          children: [
-            // ✅ 위쪽 record 박스 영역 (스크롤 시 사라짐)
-            AnimatedSwitcher(
-              duration: const Duration(milliseconds: 300),
-              switchInCurve: Curves.easeOut,
-              switchOutCurve: Curves.easeIn,
-              child: showRecordBox
-                  ? Column(
-                      key: const ValueKey("recordBox"),
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Text(
-                                'Relate X',
-                                style: TextStyle(
-                                  fontFamily: 'CourierPrime',
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                  fontStyle: FontStyle.normal,
-                                  color: Colors.black,
+  @override
+  Widget build(BuildContext context) {
+    final timelineAsync = ref.watch(homeProvider);
+
+    return SafeArea(
+      child: Stack(
+        children: [
+          Column(
+            children: [
+              // ✅ 위쪽 record 박스 영역 (스크롤 시 사라짐)
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 300),
+                switchInCurve: Curves.easeOut,
+                switchOutCurve: Curves.easeIn,
+                child: showRecordBox
+                    ? Column(
+                        key: const ValueKey("recordBox"),
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Text(
+                                  'Relate X',
+                                  style: TextStyle(
+                                    fontFamily: 'CourierPrime',
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    fontStyle: FontStyle.normal,
+                                    color: Colors.black,
+                                  ),
                                 ),
-                              ),
-                              IconButton(
-                                icon: const Icon(Icons.settings),
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(builder: (context) => const SettingScreen()),
-                                  );
-                                },
-                              ),
-                            ],
+                                IconButton(
+                                  icon: const Icon(Icons.settings),
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(builder: (context) => const SettingScreen()),
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                        const RecordBoxWidget(),
-                      ],
-                    )
-                  : const SizedBox.shrink(),
-            ),
+                          const RecordBoxWidget(),
+                        ],
+                      )
+                    : const SizedBox.shrink(),
+              ),
               // ✅ 타임라인 리스트
               Expanded(
-                child: ListView(
-                  controller: _scrollController,
-                  children: [
-                    TimelineListView(entries: entries),
-                  ],
+                child: timelineAsync.when(
+                  data: (entries) => ListView(
+                    controller: _scrollController,
+                    children: [
+                      TimelineListView(entries: entries),
+                    ],
+                  ),
+                  loading: () => const Center(child: CircularProgressIndicator()),
+                  error: (error, stack) => Center(
+                    child: Text('오류가 발생했습니다: $error'),
+                  ),
                 ),
               ),
             ],
           ),
-        ),
 
-        // ✅ showRecordBox가 true일 때 챗봇 버튼 보이고,
-        // false일 땐 버튼 묶음 보여주기!
-        if (showRecordBox)
-          Positioned(
-            bottom: 30,
-            right: 20,
-            child: AnimatedSlide(
-              offset: Offset.zero,
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeInOut,
-              child: const ChatFloatingButton(),
-            ),
-          )
-        else
-          Buttons(
-            onScrollToTop: () {
-              _scrollController.animateTo(
-                0,
+          // ✅ showRecordBox가 true일 때 챗봇 버튼 보이고,
+          // false일 땐 버튼 묶음 보여주기!
+          if (showRecordBox)
+            Positioned(
+              bottom: 30,
+              right: 20,
+              child: AnimatedSlide(
+                offset: Offset.zero,
                 duration: const Duration(milliseconds: 300),
-                curve: Curves.easeOut,
-              );
-            },
-          ),
-      ],
+                curve: Curves.easeInOut,
+                child: const ChatFloatingButton(),
+              ),
+            )
+          else
+            Buttons(
+              onScrollToTop: () {
+                _scrollController.animateTo(
+                  0,
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeOut,
+                );
+              },
+            ),
+        ],
+      ),
     );
   }
 }

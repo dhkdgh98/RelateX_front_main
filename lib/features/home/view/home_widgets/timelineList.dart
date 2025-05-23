@@ -1,26 +1,22 @@
-
 import 'package:flutter/material.dart';
 import '../../model/home_model.dart';
 
 class TimelineListView extends StatelessWidget {
-  final List<TimelineEntry>? entries;
+  final List<TimelineEntry> entries;
 
   const TimelineListView({
     super.key,
-    this.entries,
+    required this.entries,
   });
 
   @override
   Widget build(BuildContext context) {
-    final data = (entries == null || entries!.isEmpty) ? mockEntries : entries!;
-    data.sort((a, b) => b.date.compareTo(a.date)); // 최신순 정렬
-
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      itemCount: data.length,
+      itemCount: entries.length,
       itemBuilder: (context, index) {
-        final entry = data[index];
+        final entry = entries[index];
 
         return Container(
           margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),

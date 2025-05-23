@@ -1,11 +1,15 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart'; // ✅ 추가
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'features/splash/view/splash_screen.dart';
 import 'features/auth/view/login_screen.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    const ProviderScope(
+      child: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {

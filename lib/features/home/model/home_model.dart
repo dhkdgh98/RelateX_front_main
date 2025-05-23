@@ -1,5 +1,4 @@
 // home_model.dart
-
 class TimelineEntry {
   final DateTime date;
   final String friendName;
@@ -18,7 +17,20 @@ class TimelineEntry {
     required this.emotion,
     required this.category,
   });
+
+  factory TimelineEntry.fromJson(Map<String, dynamic> json) {
+    return TimelineEntry(
+      date: DateTime.parse(json['date']),
+      friendName: json['friendName'],
+      title: json['title'],
+      location: json['location'],
+      content: json['content'],
+      emotion: json['emotion'],
+      category: json['category'],
+    );
+  }
 }
+
 final List<TimelineEntry> mockEntries = [
   TimelineEntry(
     date: DateTime(2025, 4, 28),
