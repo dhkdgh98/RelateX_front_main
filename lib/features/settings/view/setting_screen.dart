@@ -1,11 +1,12 @@
-
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../auth/controller/auth_provider.dart';
 
-class SettingScreen extends StatelessWidget {
+class SettingScreen extends ConsumerWidget {
   const SettingScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('설정'),
@@ -174,15 +175,17 @@ class SettingScreen extends StatelessWidget {
           // 로그아웃 & 계정 탈퇴
           const Divider(thickness: 1),
           ListTile(
-          title: const Text(
-            '로그아웃',
-            style: TextStyle(color: Colors.red),
+            title: const Text(
+              '로그아웃',
+              style: TextStyle(color: Colors.red),
+            ),
+            onTap: () {
+              // authProvider의 상태 초기화
+              ref.read(authProvider.notifier).logout();
+              // 로그인 화면으로 이동하면서 현재 화면 제거
+              Navigator.pushReplacementNamed(context, '/login');
+            },
           ),
-          onTap: () {
-            // 로그인 화면으로 이동하면서 현재 화면 제거
-            Navigator.pushReplacementNamed(context, '/login');
-          },
-        ),
 
           ListTile(
             title: const Text(

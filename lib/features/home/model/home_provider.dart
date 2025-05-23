@@ -12,6 +12,12 @@ final homeProvider = FutureProvider<List<TimelineEntry>>((ref) async {
     return []; // 로그인 안 됐을 때 빈 리스트 반환
   }
 
+  // userId가 'guest'인 경우 (빈칸 로그인) 목업 데이터 반환
+  if (userId == 'guest') {
+    return mockEntries;
+  }
+
+  // 정상 로그인 시 서버에서 데이터 가져오기
   try {
     final jsonList = await HomeApi.getTimeline(userId);
     return jsonList.map((json) => TimelineEntry.fromJson(json)).toList();

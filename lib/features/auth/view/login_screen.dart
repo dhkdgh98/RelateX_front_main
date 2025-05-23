@@ -70,84 +70,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
                 SizedBox(height: MediaQuery.of(context).size.height * 0.02), // 반응형 높이
 
-               // 로그인 버튼
-                // SizedBox(
-                //   width: double.infinity, // 화면 너비에 맞게 버튼 크기
-                //   child: ElevatedButton(
-                //     onPressed: () {
-                //       // 로그인 기능을 구현할 곳
-                //       Navigator.pushReplacement(
-                //         context,
-                //         MaterialPageRoute(builder: (context) => const BottomNavScreen()),
-                //       );
-                //     },
-                //     style: ElevatedButton.styleFrom(
-                //       backgroundColor: Colors.black,
-                //       padding: const EdgeInsets.symmetric(vertical: 15.0),
-                //       shape: RoundedRectangleBorder(
-                //         borderRadius: BorderRadius.circular(8.0),
-                //       ),
-                //     ),
-                //     child: const Text(
-                //       '로그인',
-                //       style: TextStyle(
-                //         fontSize: 16,
-                //         color: Colors.white,
-                //         fontWeight: FontWeight.bold,
-                //       ),
-                //     ),
-                //   ),
-                // ),
-// SizedBox(
-//   width: double.infinity,
-//   child: ElevatedButton(
-//     onPressed: () async {
-//       final username = _idController.text.trim();
-//       final password = _passwordController.text.trim();
-
-//       if (username.isEmpty || password.isEmpty) {
-//         // 빈 칸이면 그냥 홈 화면으로 이동
-//         Navigator.pushReplacement(
-//           context,
-//           MaterialPageRoute(builder: (context) => const BottomNavScreen()),
-//         );
-//       } else {
-//         // 로그인 시도!
-//         bool success = await AuthController.login(
-//           username: username,
-//           password: password,
-//         );
-
-//         if (success) {
-//           Navigator.pushReplacement(
-//             context,
-//             MaterialPageRoute(builder: (context) => const BottomNavScreen()),
-//           );
-//         } else {
-//           // 실패했을 때 알려주기!
-//           ScaffoldMessenger.of(context).showSnackBar(
-//             const SnackBar(content: Text('로그인에 실패했습니다. 다시 시도해 주세요.')),
-//           );
-//         }
-//       }
-//     },
-//     style: ElevatedButton.styleFrom(
-//       backgroundColor: Colors.black,
-//       padding: const EdgeInsets.symmetric(vertical: 15.0),
-//       shape: RoundedRectangleBorder(
-//         borderRadius: BorderRadius.circular(8.0),
-//       ),
-//     ),
-//     child: const Text(
-//       '로그인',
-//       style: TextStyle(
-//         fontSize: 16,
-//         color: Colors.white,
-//         fontWeight: FontWeight.bold,
-//       ),
-//     ),
-//   ),
-// ),
+               
 
 SizedBox(
   width: double.infinity,
@@ -157,7 +80,8 @@ SizedBox(
       final password = _passwordController.text.trim();
 
       if (username.isEmpty || password.isEmpty) {
-        // 빈 칸이면 그냥 홈 화면으로 이동
+        // 빈 칸이면 guest로 설정하고 홈 화면으로 이동
+        ref.read(authProvider.notifier).setUserId('guest');
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const BottomNavScreen()),
