@@ -1,40 +1,82 @@
+// class TimelineEntry {
+//   final String title;
+//   final String friend;
+//   final String? location;
+//   final String? imageUrl;
+//   final String? content;
+//   final String? emotion;
+//   final String? category;
+//   final String? recordType;  // 여기에 추가해쪄~
+//   final DateTime date;
+
+//   TimelineEntry({
+//     required this.title,
+//     required this.friend,
+//     this.location,
+//     this.imageUrl,
+//     this.content,
+//     this.emotion,
+//     this.category,
+//     this.recordType,  // 생성자에도 추가 꼭~
+//     required this.date,
+//   });
+
+//   factory TimelineEntry.fromJson(Map<String, dynamic> json) {
+//     return TimelineEntry(
+//       title: json['title'] as String,
+//       friend: json['friend'] as String,
+//       location: json['location'] as String?,
+//       imageUrl: json['imageUrl'] as String?,
+//       content: json['content'] as String?,
+//       emotion: json['emotion'] as String?,
+//       category: json['category'] as String?,
+//       recordType: json['recordType'] as String?,  // 이거도 넣기
+//       date: DateTime.parse(json['date'] as String),
+//     );
+//   }
+// }
+
 class TimelineEntry {
   final String title;
   final String friend;
   final String? location;
-  final String? imageUrl;
+  final List<String>? imageUrls;      // ✅ 여러 이미지 URL
+  final List<String>? imagesBase64;   // ✅ Base64 이미지 리스트
   final String? content;
   final String? emotion;
   final String? category;
-  final String? recordType;  // 여기에 추가해쪄~
+  final String? recordType;           // ✅ 기록 유형 (텍스트, 사진 등)
   final DateTime date;
 
   TimelineEntry({
     required this.title,
     required this.friend,
     this.location,
-    this.imageUrl,
+    this.imageUrls,
+    this.imagesBase64,
     this.content,
     this.emotion,
     this.category,
-    this.recordType,  // 생성자에도 추가 꼭~
+    this.recordType,
     required this.date,
   });
 
   factory TimelineEntry.fromJson(Map<String, dynamic> json) {
     return TimelineEntry(
-      title: json['title'] as String,
-      friend: json['friend'] as String,
-      location: json['location'] as String?,
-      imageUrl: json['imageUrl'] as String?,
-      content: json['content'] as String?,
-      emotion: json['emotion'] as String?,
-      category: json['category'] as String?,
-      recordType: json['recordType'] as String?,  // 이거도 넣기
-      date: DateTime.parse(json['date'] as String),
+      title: json['title'] ?? '',
+      friend: json['friend'] ?? '',
+      location: json['location'],
+      imageUrls: (json['imageUrls'] as List?)?.map((e) => e.toString()).toList(),
+      imagesBase64: (json['imagesBase64'] as List?)?.map((e) => e.toString()).toList(),
+      content: json['content'],
+      emotion: json['emotion'],
+      category: json['category'],
+      recordType: json['recordType'],
+      date: DateTime.parse(json['date']),
     );
   }
 }
+
 
 final List<TimelineEntry> mockEntries = [
   TimelineEntry(
@@ -76,6 +118,6 @@ final List<TimelineEntry> mockEntries = [
     recordType: '이벤트',
     emotion: '설렘',
     category: '성장',
-    imageUrl: 'https://via.placeholder.com/60',
+   
   ),
 ];

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:http/http.dart' as http;
 import 'dart:io';
 
 import '../../api/home_api.dart';
@@ -58,71 +59,135 @@ class _PhotoRecordScreenState extends ConsumerState<PhotoRecordScreen> {
     }
   }
 
+  // Future<void> _submitRecord() async {
+  //   final userId = ref.read(authProvider).userId;
+  //   debugPrint('[DEBUG] 👤 유저 ID: $userId');
+
+  //   if (userId == null) {
+  //     if (!mounted) return;
+  //     debugPrint('[DEBUG] ❌ 유저 ID 없음. 로그인 필요!');
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       const SnackBar(content: Text('로그인이 필요합니다.')),
+  //     );
+  //     return;
+  //   }
+
+  //   if (_titleController.text.isEmpty ||
+  //       _contentController.text.isEmpty ||
+  //       _selectedImages.isEmpty) {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       const SnackBar(content: Text('제목, 내용을 입력하고 이미지를 선택해주세요.')),
+  //     );
+  //     return;
+  //   }
+
+  //   final recordData = {
+  //     'title': _titleController.text,
+  //     'content': _contentController.text,
+  //     'friend': _friendController.text,
+  //     'location': _locationController.text,
+  //     'emotion': _emotionController.text,
+  //     'category': _categoryController.text,
+  //     'recordType': _recordTypeController.text,
+  //     'date': selectedDate.toIso8601String(),
+  //     'type': 'photo',
+  //     'imageUrls': _selectedImages.map((image) => image.path).toList(),
+  //   };
+
+  //   debugPrint('[DEBUG] 📝 기록 데이터: $recordData');
+
+  //   try {
+  //     // final success = await HomeApi.postRecord(userId, recordData);
+  //     final success = await HomeApi.postRecord(userId, recordData, _selectedImages);
+
+  //     debugPrint('[DEBUG] 📡 postRecord 결과: $success');
+
+  //     if (!mounted) {
+  //       debugPrint('[DEBUG] ❗ context unmouted. 화면이 사라짐.');
+  //       return;
+  //     }
+
+  //     if (success) {
+  //       debugPrint('[DEBUG] ✅ 기록 저장 성공! 홈화면으로 이동합니다.');
+  //       if (mounted) {
+  //         Navigator.of(context).pop(true);
+  //       }
+  //     } else {
+  //       debugPrint('[DEBUG] ❌ 기록 저장 실패');
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         const SnackBar(content: Text('기록 저장에 실패했습니다.')),
+  //       );
+  //     }
+  //   } catch (e, stack) {
+  //     debugPrint('[ERROR] 🧨 예외 발생: $e\n$stack');
+  //     if (!mounted) return;
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(content: Text('오류가 발생했습니다: $e')),
+  //     );
+  //   }
+  // }
+
   Future<void> _submitRecord() async {
-    final userId = ref.read(authProvider).userId;
-    debugPrint('[DEBUG] 👤 유저 ID: $userId');
+  final userId = ref.read(authProvider).userId;
+  debugPrint('[DEBUG] 👤 유저 ID: $userId');
 
-    if (userId == null) {
-      if (!mounted) return;
-      debugPrint('[DEBUG] ❌ 유저 ID 없음. 로그인 필요!');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('로그인이 필요합니다.')),
-      );
-      return;
-    }
-
-    if (_titleController.text.isEmpty ||
-        _contentController.text.isEmpty ||
-        _selectedImages.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('제목, 내용을 입력하고 이미지를 선택해주세요.')),
-      );
-      return;
-    }
-
-    final recordData = {
-      'title': _titleController.text,
-      'content': _contentController.text,
-      'friend': _friendController.text,
-      'location': _locationController.text,
-      'emotion': _emotionController.text,
-      'category': _categoryController.text,
-      'recordType': _recordTypeController.text,
-      'date': selectedDate.toIso8601String(),
-      'type': 'photo',
-      'imageUrls': _selectedImages.map((image) => image.path).toList(),
-    };
-
-    debugPrint('[DEBUG] 📝 기록 데이터: $recordData');
-
-    try {
-      final success = await HomeApi.postRecord(userId, recordData);
-      debugPrint('[DEBUG] 📡 postRecord 결과: $success');
-
-      if (!mounted) {
-        debugPrint('[DEBUG] ❗ context unmouted. 화면이 사라짐.');
-        return;
-      }
-
-      if (success) {
-        debugPrint('[DEBUG] ✅ 기록 저장 성공! 홈화면으로 이동합니다.');
-        if (mounted) {
-          Navigator.of(context).pop(true);
-        }
-      } else {
-        debugPrint('[DEBUG] ❌ 기록 저장 실패');
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('기록 저장에 실패했습니다.')),
-        );
-      }
-    } catch (e, stack) {
-      debugPrint('[ERROR] 🧨 예외 발생: $e\n$stack');
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('오류가 발생했습니다: $e')),
-      );
-    }
+  if (userId == null) {
+    if (!mounted) return;
+    debugPrint('[DEBUG] ❌ 유저 ID 없음. 로그인 필요!');
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('로그인이 필요합니다.')),
+    );
+    return;
   }
+
+  if (_titleController.text.isEmpty ||
+      _contentController.text.isEmpty ||
+      _selectedImages.isEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('제목, 내용을 입력하고 이미지를 선택해주세요.')),
+    );
+    return;
+  }
+
+  final recordData = {
+    'title': _titleController.text,
+    'content': _contentController.text,
+    'friend': _friendController.text,
+    'location': _locationController.text,
+    'emotion': _emotionController.text,
+    'category': _categoryController.text,
+    'recordType': _recordTypeController.text,
+    'date': selectedDate.toIso8601String(),
+    'type': 'photo',
+  };
+
+  debugPrint('[DEBUG] 📝 기록 데이터: $recordData');
+
+  try {
+    final success = await HomeApi.postRecord(userId, recordData, _selectedImages);
+    debugPrint('[DEBUG] 📡 postRecord 결과: $success');
+
+    if (!mounted) return;
+
+    if (success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('기록이 저장되었습니다!')),
+      );
+      Navigator.of(context).pop(); // 저장 후 이전 화면으로 이동
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('기록 저장에 실패했습니다.')),
+      );
+    }
+  } catch (e) {
+    debugPrint('[ERROR] 🧨 예외 발생: $e');
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('기록 중 오류가 발생했어요.')),
+    );
+  }
+}
+
 
   @override
   Widget build(BuildContext context) {

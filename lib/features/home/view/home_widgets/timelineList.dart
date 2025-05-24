@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../model/home_model.dart';
+import 'dart:convert';
+
 
 class TimelineListView extends StatelessWidget {
   final List<TimelineEntry> entries;
@@ -105,18 +107,37 @@ class TimelineListView extends StatelessWidget {
                             ),
                           ),
                         const SizedBox(height: 6),
-                        if (entry.imageUrl?.isNotEmpty ?? false)
-                          Container(
-                            width: 60,
-                            height: 60,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(8.0),
-                              image: DecorationImage(
-                                image: NetworkImage(entry.imageUrl!),
-                                fit: BoxFit.cover,
+                        // if (entry.imageUrl?.isNotEmpty ?? false)
+                        //   Container(
+                        //     width: 60,
+                        //     height: 60,
+                        //     decoration: BoxDecoration(
+                        //       borderRadius: BorderRadius.circular(8.0),
+                        //       image: DecorationImage(
+                        //         image: NetworkImage(entry.imageUrl!),
+                        //         fit: BoxFit.cover,
+                        //       ),
+                        //     ),
+                        //   ),
+
+                        if ((entry.imagesBase64?.isNotEmpty ?? false))
+
+                            Container(
+                              width: 60,
+                              height: 60,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8.0),
+                                image: DecorationImage(
+                                  image: MemoryImage(
+                                    base64Decode(entry.imagesBase64!.first.split(',').last),
+                                  ),
+                                  fit: BoxFit.cover,
+                                ),
                               ),
                             ),
-                          ),
+
+
+
                       ],
                     ),
                   ],

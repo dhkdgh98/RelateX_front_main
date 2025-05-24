@@ -95,58 +95,6 @@ class _TextRecordScreenState extends ConsumerState<TextRecordScreen> {
 
 
 
-// Future<void> _submitRecord() async {
-//   final userId = ref.read(authProvider).userId;
-//   if (userId == null) {
-//     if (!mounted) return;
-//     ScaffoldMessenger.of(context).showSnackBar(
-//       const SnackBar(content: Text('로그인이 필요합니다.')),
-//     );
-//     return;
-//   }
-
-//   final recordData = {
-//     'title': _titleController.text,
-//     'content': _contentController.text,
-//     'friend': selectedFriend,
-//     'location': selectedLocation,
-//     'emotion': selectedEmotion,
-//     'category': selectedCategory,
-//     'recordType': selectedRecordType,
-//     'date': selectedDate.toIso8601String(),
-//   };
-
-//   try {
-//     final success = await HomeApi.postRecord(userId, recordData);
-//     if (!mounted) return;
-
-//     if (success) {
-//       ScaffoldMessenger.of(context).showSnackBar(
-//         const SnackBar(content: Text('기록이 저장되었습니다.')),
-//       );
-//       setState(() {
-//         _titleController.clear();
-//         _contentController.clear();
-//         selectedFriend = null;
-//         selectedLocation = null;
-//         selectedEmotion = null;
-//         selectedCategory = null;
-//         selectedRecordType = null;
-//         selectedDate = DateTime.now();
-//       });
-//       Navigator.pop(context, true);
-//     } else {
-//       ScaffoldMessenger.of(context).showSnackBar(
-//         const SnackBar(content: Text('기록 저장에 실패했습니다.')),
-//       );
-//     }
-//   } catch (e) {
-//     if (!mounted) return;
-//     ScaffoldMessenger.of(context).showSnackBar(
-//       SnackBar(content: Text('오류가 발생했습니다: $e')),
-//     );
-//   }
-// }
 
 
 
