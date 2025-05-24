@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import '../record/photo_record_screen.dart';
-import '../record/text_record_screen.dart';
-import '../record/voice_record_screen.dart';
-import '../record/chatbot_record_screen.dart';
+
+enum RecordType { photo, text, voice, chatbot }
 
 class RecordBoxWidget extends StatelessWidget {
-  const RecordBoxWidget({super.key});
+  final void Function(RecordType) onRecordTypeSelected;
+
+  const RecordBoxWidget({super.key, required this.onRecordTypeSelected});
 
   @override
   Widget build(BuildContext context) {
@@ -28,47 +28,23 @@ class RecordBoxWidget extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               _buildRecordButton(
-                context,
                 Icons.photo_camera,
-                () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const PhotoRecordScreen(),
-                  ),
-                ),
+                () => onRecordTypeSelected(RecordType.photo),
               ),
               const SizedBox(width: 16),
               _buildRecordButton(
-                context,
                 Icons.edit,
-                () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const TextRecordScreen(),
-                  ),
-                ),
+                () => onRecordTypeSelected(RecordType.text),
               ),
               const SizedBox(width: 16),
               _buildRecordButton(
-                context,
                 Icons.mic,
-                () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const VoiceRecordScreen(),
-                  ),
-                ),
+                () => onRecordTypeSelected(RecordType.voice),
               ),
               const SizedBox(width: 16),
               _buildRecordButton(
-                context,
                 Icons.chat_bubble_outline,
-                () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const ChatbotRecordScreen(),
-                  ),
-                ),
+                () => onRecordTypeSelected(RecordType.chatbot),
               ),
             ],
           ),
@@ -99,7 +75,7 @@ class RecordBoxWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildRecordButton(BuildContext context, IconData icon, VoidCallback onTap) {
+  Widget _buildRecordButton(IconData icon, VoidCallback onTap) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -124,3 +100,4 @@ class RecordBoxWidget extends StatelessWidget {
     );
   }
 }
+

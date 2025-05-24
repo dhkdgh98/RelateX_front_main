@@ -1,13 +1,19 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import 'home_widgets/recordBoxWidget.dart';
 import 'home_widgets/timelineList.dart';
-import '../model/home_model.dart';
 import '../model/home_provider.dart';
 import 'home_widgets/chat_floating_button.dart';
-import 'home_widgets/buttons.dart'; // ✅ 버튼 묶음 위젯!
+import 'home_widgets/buttons.dart'; 
 import '../../settings/view/setting_screen.dart';
+
+// 기록 화면들 임포트 (오빠가 만든 거 맞춰서 수정해줘~)
+import 'record/photo_record_screen.dart';
+import 'record/text_record_screen.dart';
+import 'record/voice_record_screen.dart';
+import 'record/chatbot_record_screen.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -20,6 +26,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   final ScrollController _scrollController = ScrollController();
   bool showRecordBox = true;
   Timer? _debounce;
+  bool _isHandlingRecord = false;
 
   @override
   void initState() {
@@ -47,6 +54,65 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     super.dispose();
   }
 
+  Future<void> _handleRecordTypeSelected(RecordType recordType) async {
+    if (_isHandlingRecord) {
+      debugPrint('[DEBUG] ⚠️ 이미 기록 처리 중입니다.');
+      return;
+    }
+
+    _isHandlingRecord = true;
+    debugPrint('[DEBUG] 📝 기록 화면 진입 - 타입: $recordType');
+
+    try {
+      bool? result;
+
+      switch (recordType) {
+        case RecordType.photo:
+          result = await Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const PhotoRecordScreen()),
+          );
+          break;
+
+        case RecordType.text:
+          result = await Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const TextRecordScreen()),
+          );
+          break;
+
+        case RecordType.voice:
+          result = await Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const VoiceRecordScreen()),
+          );
+          break;
+
+        case RecordType.chatbot:
+          result = await Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const ChatbotRecordScreen()),
+          );
+          break;
+      }
+
+      debugPrint('[DEBUG] ✅ Navigator 결과: $result');
+
+      if (result == true && mounted) {
+        debugPrint('[DEBUG] 🔄 기록 완료됨! 타임라인 갱신할게~');
+        ref.invalidate(homeProvider);
+      } else {
+        debugPrint('[DEBUG] ⏹ 기록 실패 또는 취소됨');
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isHandlingRecord = false;
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final timelineAsync = ref.watch(homeProvider);
@@ -56,7 +122,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         children: [
           Column(
             children: [
-              // ✅ 위쪽 record 박스 영역 (스크롤 시 사라짐)
               AnimatedSwitcher(
                 duration: const Duration(milliseconds: 300),
                 switchInCurve: Curves.easeOut,
@@ -77,7 +142,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                     fontFamily: 'CourierPrime',
                                     fontSize: 20,
                                     fontWeight: FontWeight.bold,
-                                    fontStyle: FontStyle.normal,
                                     color: Colors.black,
                                   ),
                                 ),
@@ -93,12 +157,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                               ],
                             ),
                           ),
-                          const RecordBoxWidget(),
+                          RecordBoxWidget(onRecordTypeSelected: _handleRecordTypeSelected),
                         ],
                       )
                     : const SizedBox.shrink(),
               ),
-              // ✅ 타임라인 리스트
               Expanded(
                 child: timelineAsync.when(
                   data: (entries) => ListView(
@@ -116,8 +179,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ],
           ),
 
-          // ✅ showRecordBox가 true일 때 챗봇 버튼 보이고,
-          // false일 땐 버튼 묶음 보여주기!
           if (showRecordBox)
             Positioned(
               bottom: 30,
@@ -144,5 +205,3 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 }
-
-
