@@ -13,7 +13,7 @@ import '../../settings/view/setting_screen.dart';
 import 'record/photo_record_screen.dart';
 import 'record/text_record_screen.dart';
 import 'record/voice_record_screen.dart';
-import 'record/chatbot_record_screen.dart';
+import 'record/chatbot_screen.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -91,7 +91,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         case RecordType.chatbot:
           result = await Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const ChatbotRecordScreen()),
+            MaterialPageRoute(builder: (context) => const ChatbotScreen()),
           );
           break;
       }
