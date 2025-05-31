@@ -5,11 +5,62 @@ import 'dart:convert';
 
 class TimelineListView extends StatelessWidget {
   final List<TimelineEntry> entries;
+  final String searchQuery;
+  final DateTime? dateFilterStart;
+  final DateTime? dateFilterEnd;
 
   const TimelineListView({
     super.key,
     required this.entries,
+    this.searchQuery = '',
+    this.dateFilterStart,
+    this.dateFilterEnd,
   });
+
+  List<TimelineEntry> get filteredEntries {
+    var filtered = entries;
+
+    // 검색어 필터링
+    if (searchQuery.isNotEmpty) {
+      filtered = filtered.where((entry) {
+        final title = entry.title.toLowerCase();
+        final content = entry.content?.toLowerCase() ?? '';
+        final friend = entry.friend.toLowerCase();
+        final location = entry.location?.toLowerCase() ?? '';
+        final emotion = entry.emotion?.toLowerCase() ?? '';
+        final category = entry.category?.toLowerCase() ?? '';
+        final query = searchQuery.toLowerCase();
+
+        return title.contains(query) ||
+            content.contains(query) ||
+            friend.contains(query) ||
+            location.contains(query) ||
+            emotion.contains(query) ||
+            category.contains(query);
+      }).toList();
+    }
+
+    // 날짜 필터링
+    if (dateFilterStart != null) {
+      filtered = filtered.where((entry) {
+        final entryDate = entry.date;
+        if (dateFilterEnd != null) {
+          // 기간 선택 모드
+          final start = DateTime(dateFilterStart!.year, dateFilterStart!.month, dateFilterStart!.day);
+          final end = DateTime(dateFilterEnd!.year, dateFilterEnd!.month, dateFilterEnd!.day);
+          final entry = DateTime(entryDate.year, entryDate.month, entryDate.day);
+          return !entry.isBefore(start) && !entry.isAfter(end);
+        } else {
+          // 단일 날짜 선택 모드
+          return entryDate.year == dateFilterStart!.year &&
+              entryDate.month == dateFilterStart!.month &&
+              entryDate.day == dateFilterStart!.day;
+        }
+      }).toList();
+    }
+
+    return filtered;
+  }
 
   Widget buildTag(String text, {Color? color}) {
     return Container(
@@ -28,17 +79,24 @@ class TimelineListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 디버그: entries 개수 확인
-    print('TimelineListView - entries count: ${entries.length}');
+    final filteredList = filteredEntries;
+    print('TimelineListView - Total entries: ${entries.length}');
+    print('TimelineListView - Filtered entries: ${filteredList.length}');
+    print('TimelineListView - Search query: $searchQuery');
+    print('TimelineListView - Date filter: $dateFilterStart to $dateFilterEnd');
     
-    if (entries.isEmpty) {
-      return const Center(
+    if (filteredList.isEmpty) {
+      return Center(
         child: Padding(
-          padding: EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(16.0),
           child: Text(
-            '아직 기록이 없습니다.\n새로운 기록을 작성해보세요!',
+            searchQuery.isEmpty && dateFilterStart == null
+                ? '아직 기록이 없습니다.\n새로운 기록을 작성해보세요!'
+                : searchQuery.isNotEmpty
+                    ? '"$searchQuery"에 대한 검색 결과가 없습니다.'
+                    : '선택한 날짜에 기록이 없습니다.',
             textAlign: TextAlign.center,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 16,
               color: Colors.grey,
             ),
@@ -50,11 +108,10 @@ class TimelineListView extends StatelessWidget {
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      itemCount: entries.length,
+      itemCount: filteredList.length,
       itemBuilder: (context, index) {
-        final entry = entries[index];
-        // 디버그: 각 entry 데이터 확인
-        print('Entry $index: ${entry.title} - ${entry.content}');
+        final entry = filteredList[index];
+        print('Filtered Entry $index: ${entry.title} - ${entry.content}');
 
         return Container(
           margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),

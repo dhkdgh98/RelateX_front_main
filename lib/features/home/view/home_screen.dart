@@ -27,6 +27,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   bool showRecordBox = true;
   Timer? _debounce;
   bool _isHandlingRecord = false;
+  String _searchQuery = '';
+  DateTime? _dateFilterStart;
+  DateTime? _dateFilterEnd;
 
   @override
   void initState() {
@@ -52,6 +55,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     _debounce?.cancel();
     _scrollController.dispose();
     super.dispose();
+  }
+
+  void _handleSearchChanged(String query) {
+    setState(() {
+      _searchQuery = query;
+    });
+  }
+
+  void _handleDateRangeSelected(DateTime? start, DateTime? end) {
+    setState(() {
+      _dateFilterStart = start;
+      _dateFilterEnd = end;
+    });
   }
 
   Future<void> _handleRecordTypeSelected(RecordType recordType) async {
@@ -167,7 +183,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   data: (entries) => ListView(
                     controller: _scrollController,
                     children: [
-                      TimelineListView(entries: entries),
+                      TimelineListView(
+                        entries: entries,
+                        searchQuery: _searchQuery,
+                        dateFilterStart: _dateFilterStart,
+                        dateFilterEnd: _dateFilterEnd,
+                      ),
                     ],
                   ),
                   loading: () => const Center(child: CircularProgressIndicator()),
@@ -199,6 +220,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   curve: Curves.easeOut,
                 );
               },
+              onSearchChanged: _handleSearchChanged,
+              onDateRangeSelected: _handleDateRangeSelected,
             ),
         ],
       ),
