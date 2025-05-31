@@ -5,9 +5,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'home_widgets/recordBoxWidget.dart';
 import 'home_widgets/timelineList.dart';
 import '../model/home_provider.dart';
+import '../model/timeline_model.dart';
+import '../api/home_api.dart';
 import 'home_widgets/chat_floating_button.dart';
 import 'home_widgets/buttons.dart'; 
 import '../../settings/view/setting_screen.dart';
+import '../model/timeline_model.dart';
 
 // 기록 화면들 임포트 (오빠가 만든 거 맞춰서 수정해줘~)
 import 'record/photo_record_screen.dart';
@@ -129,6 +132,57 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     }
   }
 
+  void _handleEditEntry(TimelineEntry entry) {
+    if (entry.id == null || entry.id!.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('수정할 수 없는 기록입니다.'),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+    // TODO: 수정 화면으로 이동
+    debugPrint('[DEBUG] 📝 기록 수정 - ID: ${entry.id}');
+  }
+
+  Future<void> _handleDeleteEntry(TimelineEntry entry) async {
+    if (entry.id == null || entry.id!.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('삭제할 수 없는 기록입니다.'),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
+    try {
+      await HomeApi.deleteRecord(entry.id!);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('기록이 삭제되었습니다.'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+        ref.invalidate(homeProvider);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('기록 삭제 실패: $e'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final timelineAsync = ref.watch(homeProvider);
@@ -188,6 +242,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         searchQuery: _searchQuery,
                         dateFilterStart: _dateFilterStart,
                         dateFilterEnd: _dateFilterEnd,
+                        onEdit: _handleEditEntry,
+                        onDelete: _handleDeleteEntry,
                       ),
                     ],
                   ),

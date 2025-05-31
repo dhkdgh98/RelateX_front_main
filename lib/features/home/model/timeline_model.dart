@@ -1,4 +1,5 @@
 class TimelineEntry {
+  final String? id;
   final String title;
   final String friend;
   final String? location;
@@ -11,6 +12,7 @@ class TimelineEntry {
   final DateTime date;
 
   TimelineEntry({
+    this.id,
     required this.title,
     required this.friend,
     this.location,
@@ -25,6 +27,7 @@ class TimelineEntry {
 
   factory TimelineEntry.fromJson(Map<String, dynamic> json) {
     return TimelineEntry(
+      id: json['_id'] != null ? json['_id'].toString() : null,
       title: json['title'] ?? '',
       friend: json['friend'] ?? '',
       location: json['location'],
@@ -37,11 +40,28 @@ class TimelineEntry {
       date: DateTime.parse(json['date']),
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      '_id': id ?? '',
+      'title': title,
+      'friend': friend,
+      'location': location,
+      'imageUrls': imageUrls,
+      'imagesBase64': imagesBase64,
+      'content': content,
+      'emotion': emotion,
+      'category': category,
+      'recordType': recordType,
+      'date': date.toIso8601String(),
+    };
+  }
 }
 
 
 final List<TimelineEntry> mockEntries = [
   TimelineEntry(
+    id: '1',
     date: DateTime(2025, 4, 28),
     friend: '태훈',
     title: '불안한 마음',
@@ -52,6 +72,7 @@ final List<TimelineEntry> mockEntries = [
     category: '자기성찰',
   ),
   TimelineEntry(
+    id: '2',
     date: DateTime(2025, 3, 15),
     friend: '영호',
     title: '긍정적인 변화',
@@ -62,6 +83,7 @@ final List<TimelineEntry> mockEntries = [
     category: '성장',
   ),
   TimelineEntry(
+    id: '3',
     date: DateTime(2025, 4, 10),
     friend: '나 자신',
     title: '자기반성',
@@ -72,6 +94,7 @@ final List<TimelineEntry> mockEntries = [
     category: '자기성찰',
   ),
   TimelineEntry(
+    id: '4',
     date: DateTime(2025, 5, 2),
     friend: '세정',
     title: '새로운 시작',
@@ -80,6 +103,5 @@ final List<TimelineEntry> mockEntries = [
     recordType: '이벤트',
     emotion: '설렘',
     category: '성장',
-   
   ),
 ];

@@ -8,10 +8,14 @@ class TimelineListView extends StatelessWidget {
   final String searchQuery;
   final DateTime? dateFilterStart;
   final DateTime? dateFilterEnd;
+  final Function(TimelineEntry) onEdit;
+  final Function(TimelineEntry) onDelete;
 
   const TimelineListView({
     super.key,
     required this.entries,
+    required this.onEdit,
+    required this.onDelete,
     this.searchQuery = '',
     this.dateFilterStart,
     this.dateFilterEnd,
@@ -155,34 +159,85 @@ class TimelineListView extends StatelessWidget {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        if (entry.location?.isNotEmpty ?? false)
-                          Text(
-                            entry.location!,
-                            style: const TextStyle(
-                              fontSize: 14,
-                              color: Colors.grey,
-                            ),
-                          ),
-                        const SizedBox(height: 6),
-
-                        if ((entry.imagesBase64?.isNotEmpty ?? false))
-
-                            Container(
-                              width: 60,
-                              height: 60,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(8.0),
-                                image: DecorationImage(
-                                  image: MemoryImage(
-                                    base64Decode(entry.imagesBase64!.first.split(',').last),
-                                  ),
-                                  fit: BoxFit.cover,
+                        Row(
+                          children: [
+                            if (entry.location?.isNotEmpty ?? false)
+                              Text(
+                                entry.location!,
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey,
                                 ),
                               ),
+                            const SizedBox(width: 8),
+                            PopupMenuButton<String>(
+                              icon: const Icon(Icons.more_vert, size: 20),
+                              onSelected: (value) {
+                                if (value == 'edit') {
+                                  onEdit(entry);
+                                } else if (value == 'delete') {
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) => AlertDialog(
+                                      title: const Text('기록 삭제'),
+                                      content: const Text('이 기록을 삭제하시겠습니까?'),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () => Navigator.pop(context),
+                                          child: const Text('취소'),
+                                        ),
+                                        TextButton(
+                                          onPressed: () {
+                                            onDelete(entry);
+                                            Navigator.pop(context);
+                                          },
+                                          child: const Text('삭제'),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                }
+                              },
+                              itemBuilder: (context) => [
+                                const PopupMenuItem(
+                                  value: 'edit',
+                                  child: Row(
+                                    children: [
+                                      Icon(Icons.edit, size: 20),
+                                      SizedBox(width: 8),
+                                      Text('수정'),
+                                    ],
+                                  ),
+                                ),
+                                const PopupMenuItem(
+                                  value: 'delete',
+                                  child: Row(
+                                    children: [
+                                      Icon(Icons.delete, size: 20),
+                                      SizedBox(width: 8),
+                                      Text('삭제'),
+                                    ],
+                                  ),
+                                ),
+                              ],
                             ),
-
-
-
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+                        if ((entry.imagesBase64?.isNotEmpty ?? false))
+                          Container(
+                            width: 60,
+                            height: 60,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8.0),
+                              image: DecorationImage(
+                                image: MemoryImage(
+                                  base64Decode(entry.imagesBase64!.first.split(',').last),
+                                ),
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          ),
                       ],
                     ),
                   ],
