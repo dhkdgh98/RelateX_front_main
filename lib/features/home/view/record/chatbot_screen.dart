@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../auth/controller/auth_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../api/chat_api.dart';
+import 'dart:math';
 
 class ChatbotScreen extends ConsumerStatefulWidget {
   const ChatbotScreen({super.key});
@@ -10,16 +11,21 @@ class ChatbotScreen extends ConsumerStatefulWidget {
   ConsumerState<ChatbotScreen> createState() => _ChatbotScreenState();
 }
 
-class _ChatbotScreenState extends ConsumerState<ChatbotScreen> {
+class _ChatbotScreenState extends ConsumerState<ChatbotScreen> with SingleTickerProviderStateMixin {
   final List<Map<String, String>> _messages = []; // {'sender': 'user'|'bot', 'text': '...'}
   final TextEditingController _controller = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   bool _isLoading = false;
   String? _selectedCategory; // 선택된 카테고리 저장
+  AnimationController? _loadingController;
 
   @override
   void initState() {
     super.initState();
+    _loadingController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    );
 
     // ✅ 초기 챗봇 메시지 추가
     _messages.add({
@@ -46,6 +52,7 @@ class _ChatbotScreenState extends ConsumerState<ChatbotScreen> {
   void dispose() {
     _controller.dispose();
     _scrollController.dispose();
+    _loadingController?.dispose();
     super.dispose();
   }
 
@@ -80,6 +87,12 @@ class _ChatbotScreenState extends ConsumerState<ChatbotScreen> {
   }
 
   Widget _buildLoadingMessage() {
+    if (_isLoading && _loadingController != null) {
+      _loadingController!.repeat();
+    } else if (_loadingController != null) {
+      _loadingController!.stop();
+    }
+    
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
       alignment: Alignment.centerLeft,
@@ -105,13 +118,17 @@ class _ChatbotScreenState extends ConsumerState<ChatbotScreen> {
   }
 
   Widget _buildLoadingDot(int index) {
-    return TweenAnimationBuilder<double>(
-      tween: Tween(begin: 0.0, end: 1.0),
-      duration: const Duration(milliseconds: 1200),
-      curve: Interval(index * 0.2, (index * 0.2) + 0.5, curve: Curves.easeInOut),
-      builder: (context, value, child) {
+    if (_loadingController == null) return const SizedBox();
+    
+    return AnimatedBuilder(
+      animation: _loadingController!,
+      builder: (context, child) {
+        final value = _loadingController!.value;
+        final dotValue = (value - (index * 0.2)) % 1.0;
+        final translateY = -4 * sin(dotValue * pi);
+        
         return Transform.translate(
-          offset: Offset(0, -4 * value),
+          offset: Offset(0, translateY),
           child: Container(
             width: 8,
             height: 8,

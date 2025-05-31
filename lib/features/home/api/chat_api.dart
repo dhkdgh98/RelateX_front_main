@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import '../../../constants/api_config.dart'; // 기본 헤더, 베이스 URL 등
+import '../../../constants/api_config.dart';
 
 class ChatApi {
   static const String _chatBase = '${ApiConfig.baseUrl}/chat';
@@ -21,7 +21,6 @@ class ChatApi {
     final response = await http.post(
       uri,
       headers: {
-        ...ApiConfig.defaultHeaders,
         'Content-Type': 'application/json',
       },
       body: jsonEncode(bodyData),
@@ -61,7 +60,6 @@ class ChatApi {
     final response = await http.post(
       uri,
       headers: {
-        ...ApiConfig.defaultHeaders,
         'Content-Type': 'application/json',
       },
       body: jsonEncode(bodyData),
