@@ -2,7 +2,7 @@
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../auth/controller/auth_provider.dart';
-import '../model/home_model.dart';
+import 'timeline_model.dart';
 import '../api/home_api.dart';
 
 final homeProvider = FutureProvider<List<TimelineEntry>>((ref) async {

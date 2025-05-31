@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../model/home_model.dart';
+import '../../model/timeline_model.dart';
 import 'dart:convert';
 
 
@@ -107,18 +107,6 @@ class TimelineListView extends StatelessWidget {
                             ),
                           ),
                         const SizedBox(height: 6),
-                        // if (entry.imageUrl?.isNotEmpty ?? false)
-                        //   Container(
-                        //     width: 60,
-                        //     height: 60,
-                        //     decoration: BoxDecoration(
-                        //       borderRadius: BorderRadius.circular(8.0),
-                        //       image: DecorationImage(
-                        //         image: NetworkImage(entry.imageUrl!),
-                        //         fit: BoxFit.cover,
-                        //       ),
-                        //     ),
-                        //   ),
 
                         if ((entry.imagesBase64?.isNotEmpty ?? false))
 
