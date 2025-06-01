@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import '../../../auth/controller/auth_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:relate_x_front_main/features/home/view/home_screen.dart';
 import '../../api/chat_api.dart';
 import 'dart:math';
+import 'chatbot_record_screen.dart';
 
 class ChatbotScreen extends ConsumerStatefulWidget {
   const ChatbotScreen({super.key});
@@ -16,7 +18,8 @@ class _ChatbotScreenState extends ConsumerState<ChatbotScreen> with SingleTicker
   final TextEditingController _controller = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   bool _isLoading = false;
-  String? _selectedCategory; // 선택된 카테고리 저장
+  bool _isSaving = false;
+  String? _selectedRecordType; // 선택된 기록타입 저장
   AnimationController? _loadingController;
 
   @override
@@ -87,7 +90,7 @@ class _ChatbotScreenState extends ConsumerState<ChatbotScreen> with SingleTicker
   }
 
   Widget _buildLoadingMessage() {
-    if (_isLoading && _loadingController != null) {
+    if ((_isLoading || _isSaving) && _loadingController != null) {
       _loadingController!.repeat();
     } else if (_loadingController != null) {
       _loadingController!.stop();
@@ -178,7 +181,7 @@ class _ChatbotScreenState extends ConsumerState<ChatbotScreen> with SingleTicker
       final botReply = await ChatApi.sendMessage(
         userId, 
         text,
-        category: _selectedCategory,
+        category: _selectedRecordType,
       );
 
       if (!mounted) return;
@@ -223,6 +226,18 @@ class _ChatbotScreenState extends ConsumerState<ChatbotScreen> with SingleTicker
     }
   }
 
+  void _navigateToRecordScreen(Map<String, String> parsedData, String recordType) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ChatbotRecordScreen(
+          parsedData: parsedData,
+          recordType: recordType,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -246,18 +261,96 @@ class _ChatbotScreenState extends ConsumerState<ChatbotScreen> with SingleTicker
               Navigator.of(context).pop();
             },
           ),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.save_alt),
+              onPressed: _isSaving ? null : () async {
+                if (_messages.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('저장할 대화 내용이 없습니다.')),
+                  );
+                  return;
+                }
+
+                setState(() {
+                  _isSaving = true;
+                });
+
+                // 로딩 시작 후 스크롤
+                Future.delayed(const Duration(milliseconds: 100), () {
+                  if (mounted) {
+                    _scrollController.animateTo(
+                      _scrollController.position.maxScrollExtent,
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeOut,
+                    );
+                  }
+                });
+
+                // 마지막 메시지 가져오기
+                final lastMessage = _messages.last['text'] ?? '';
+                
+                // 메시지 파싱
+                final Map<String, String> parsedData = {};
+                
+                // 각 필드 파싱
+                final titleMatch = RegExp(r'제목:\s*(.*?)(?=\n|$)').firstMatch(lastMessage);
+                final friendMatch = RegExp(r'사람:\s*(.*?)(?=\n|$)').firstMatch(lastMessage);
+                final locationMatch = RegExp(r'장소:\s*(.*?)(?=\n|$)').firstMatch(lastMessage);
+                final contentMatch = RegExp(r'내용:\s*([\s\S]*?)(?=\n\s*(?:5\.\s*감정:|6\.\s*카테고리:|감정:|카테고리:)|$)').firstMatch(lastMessage);
+                final emotionMatch = RegExp(r'감정:\s*(.*?)(?=\n|$)').firstMatch(lastMessage);
+                final categoryMatch = RegExp(r'카테고리:\s*(.*?)(?=\n|$)').firstMatch(lastMessage);
+
+                if (titleMatch != null) parsedData['title'] = titleMatch.group(1)?.trim() ?? '';
+                if (friendMatch != null) parsedData['friend'] = friendMatch.group(1)?.trim() ?? '';
+                if (locationMatch != null) parsedData['location'] = locationMatch.group(1)?.trim() ?? '';
+                if (contentMatch != null) parsedData['content'] = contentMatch.group(1)?.trim() ?? '';
+                if (emotionMatch != null) parsedData['emotion'] = emotionMatch.group(1)?.trim() ?? '';
+                if (categoryMatch != null) parsedData['category'] = categoryMatch.group(1)?.trim() ?? '';
+                parsedData['recordType'] = _selectedRecordType ?? '';
+
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ChatbotRecordScreen(
+                      parsedData: parsedData,
+                      recordType: _selectedRecordType ?? '',
+                    ),
+                  ),
+                );
+
+                setState(() {
+                  _isSaving = false;
+                });
+
+                // 로딩 종료 후 스크롤
+                Future.delayed(const Duration(milliseconds: 100), () {
+                  if (mounted) {
+                    _scrollController.animateTo(
+                      _scrollController.position.maxScrollExtent,
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeOut,
+                    );
+                  }
+                });
+              },
+            ),
+          ],
         ),
         body: Column(
           children: [
             Expanded(
               child: ListView.builder(
                 controller: _scrollController,
-                itemCount: _messages.length + (_isLoading ? 1 : 0),
+                itemCount: _messages.length + (_isLoading || _isSaving ? 1 : 0),
                 itemBuilder: (context, index) {
-                  if (index == _messages.length) {
+                  if (index == _messages.length && (_isLoading || _isSaving)) {
                     return _buildLoadingMessage();
                   }
-                  return _buildMessage(_messages[index]);
+                  if (index < _messages.length) {
+                    return _buildMessage(_messages[index]);
+                  }
+                  return const SizedBox.shrink();
                 },
               ),
             ),
@@ -273,18 +366,18 @@ class _ChatbotScreenState extends ConsumerState<ChatbotScreen> with SingleTicker
               child: Row(
                 children: [
                   const Text(
-                    '카테고리:',
+                    '기록타입:',
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.grey,
                     ),
                   ),
                   const SizedBox(width: 8),
-                  if (_selectedCategory != null)
+                  if (_selectedRecordType != null)
                     GestureDetector(
                       onTap: () {
                         setState(() {
-                          _selectedCategory = null;
+                          _selectedRecordType = null;
                         });
                       },
                       child: Container(
@@ -297,7 +390,7 @@ class _ChatbotScreenState extends ConsumerState<ChatbotScreen> with SingleTicker
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
-                              _selectedCategory!,
+                              _selectedRecordType!,
                               style: const TextStyle(fontSize: 12),
                             ),
                             const SizedBox(width: 4),
@@ -311,12 +404,12 @@ class _ChatbotScreenState extends ConsumerState<ChatbotScreen> with SingleTicker
                       ),
                     )
                   else
-                    ...['생각', '이벤트', '대화'].map((category) => Padding(
+                    ...['생각', '이벤트', '대화'].map((type) => Padding(
                       padding: const EdgeInsets.only(right: 4),
                       child: InkWell(
                         onTap: () {
                           setState(() {
-                            _selectedCategory = category;
+                            _selectedRecordType = type;
                           });
                         },
                         child: Container(
@@ -326,7 +419,7 @@ class _ChatbotScreenState extends ConsumerState<ChatbotScreen> with SingleTicker
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
-                            category,
+                            type,
                             style: const TextStyle(fontSize: 12),
                           ),
                         ),
@@ -334,13 +427,28 @@ class _ChatbotScreenState extends ConsumerState<ChatbotScreen> with SingleTicker
                     )).toList(),
                   const Spacer(),
                   ElevatedButton.icon(
-                    onPressed: _selectedCategory == null ? null : () async {
+                    onPressed: (_selectedRecordType == null || _isSaving) ? null : () async {
                       if (_messages.isEmpty) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text('저장할 대화 내용이 없습니다.')),
                         );
                         return;
                       }
+
+                      setState(() {
+                        _isSaving = true;
+                      });
+
+                      // 로딩 시작 후 스크롤
+                      Future.delayed(const Duration(milliseconds: 100), () {
+                        if (mounted) {
+                          _scrollController.animateTo(
+                            _scrollController.position.maxScrollExtent,
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeOut,
+                          );
+                        }
+                      });
 
                       final userId = ref.read(authProvider).userId;
                       if (userId == null) {
@@ -354,19 +462,17 @@ class _ChatbotScreenState extends ConsumerState<ChatbotScreen> with SingleTicker
                         final result = await ChatApi.saveChat(
                           userId,
                           _messages,
-                          _selectedCategory!,
+                          _selectedRecordType!,
                         );
 
                         if (!mounted) return;
 
                         if (result != null) {
-                          // 정리된 내용을 새로운 메시지로 추가
                           setState(() {
                             _messages.add({
                               'sender': 'bot',
                               'text': '📝 정리된 내용:\n\n${result['summary']}',
                             });
-                            _selectedCategory = null;
                           });
 
                           ScaffoldMessenger.of(context).showSnackBar(
@@ -382,9 +488,25 @@ class _ChatbotScreenState extends ConsumerState<ChatbotScreen> with SingleTicker
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text('기록 저장 중 오류가 발생했습니다.')),
                         );
+                      } finally {
+                        if (mounted) {
+                          setState(() {
+                            _isSaving = false;
+                          });
+                          // 로딩 종료 후 스크롤
+                          Future.delayed(const Duration(milliseconds: 100), () {
+                            if (mounted) {
+                              _scrollController.animateTo(
+                                _scrollController.position.maxScrollExtent,
+                                duration: const Duration(milliseconds: 300),
+                                curve: Curves.easeOut,
+                              );
+                            }
+                          });
+                        }
                       }
                     },
-                    icon: const Icon(Icons.save_alt, size: 18),
+                    icon: const Icon(Icons.description, size: 18),
                     label: const Text('기록하기'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF6B4EFF),
@@ -412,8 +534,8 @@ class _ChatbotScreenState extends ConsumerState<ChatbotScreen> with SingleTicker
                       textInputAction: TextInputAction.newline,
                       keyboardType: TextInputType.multiline,
                       decoration: InputDecoration(
-                        hintText: _selectedCategory != null 
-                            ? "$_selectedCategory 입력하기..."
+                        hintText: _selectedRecordType != null 
+                            ? "$_selectedRecordType 입력하기..."
                             : "메시지를 입력하세요...",
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
@@ -428,8 +550,8 @@ class _ChatbotScreenState extends ConsumerState<ChatbotScreen> with SingleTicker
                     padding: const EdgeInsets.only(left: 4, bottom: 4),
                     child: IconButton(
                       icon: const Icon(Icons.send),
-                      onPressed: _isLoading ? null : _sendMessage,
-                      color: _isLoading 
+                      onPressed: (_isLoading || _isSaving) ? null : _sendMessage,
+                      color: (_isLoading || _isSaving)
                           ? Colors.grey 
                           : const Color.fromARGB(255, 120, 120, 120),
                     ),

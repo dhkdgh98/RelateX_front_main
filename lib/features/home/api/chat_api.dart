@@ -48,9 +48,12 @@ class ChatApi {
   static Future<Map<String, dynamic>?> saveChat(String userId, List<Map<String, String>> messages, String category) async {
     final uri = Uri.parse('${ApiConfig.baseUrl}/chat/save');
 
+    // 유저 메시지만 필터링
+    final userMessages = messages.where((msg) => msg['sender'] == 'user').toList();
+
     final bodyData = {
       'userId': userId,
-      'messages': messages,
+      'messages': userMessages,
       'messageType': category,
     };
 

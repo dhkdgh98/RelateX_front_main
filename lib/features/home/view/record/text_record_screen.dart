@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../api/home_api.dart';
 import '../../../auth/controller/auth_provider.dart';
+import '../../model/home_provider.dart';
+import '../../../bottom_nav/view/bottom_nav_screen.dart';
 
 
 class TextRecordScreen extends ConsumerStatefulWidget {
@@ -136,7 +138,12 @@ Future<void> _submitRecord() async {
     if (success) {
       debugPrint('[DEBUG] ✅ 기록 저장 성공! 홈화면으로 이동합니다.');
       if (mounted) {
-        Navigator.of(context).pop(true);
+        ref.invalidate(homeProvider);
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => const BottomNavScreen()),
+          (route) => false,
+        );
       }
     } else {
       debugPrint('[DEBUG] ❌ 기록 저장 실패');

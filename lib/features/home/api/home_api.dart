@@ -43,7 +43,7 @@ class HomeApi {
     List<XFile>? selectedImages,
   ]) async {
     print('[DEBUG] 🔍 현재 baseUrl: ${ApiConfig.baseUrl}');
-    final uri = Uri.parse('$_homeBase/record');
+    final uri = Uri.parse('$_homeBase/home/record');
     print('[DEBUG] 📡 요청 URL: $uri');
 
     try {
