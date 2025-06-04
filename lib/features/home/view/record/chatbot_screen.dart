@@ -31,13 +31,13 @@ class _ChatbotScreenState extends ConsumerState<ChatbotScreen> with SingleTicker
     );
 
     // ✅ 초기 챗봇 메시지 추가
-    _messages.add({
-      'sender': 'bot',
-      'text': '오늘은 어떤 일이 있었나요?\n\n'
-          '생각, 이벤트, 대화 중에서\n'
-          '기록하고 싶은 내용을 입력해주세요~\n'
-          '자동으로 기록해줄게요~ 😊',
-    });
+_messages.add({
+  'sender': 'bot',
+  'text': '오늘은 어떤 일이 있었나요?\n\n'
+      '생각, 이벤트, 대화 중에서\n'
+      '기록하고 싶은 내용을 입력해주세요~\n'
+      '자동으로 기록해줄게요~ 😊',
+});
 
     // 💬 자동 스크롤도 OK! (postFrameCallback으로 빌드 후 실행되게 처리)
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -48,7 +48,7 @@ class _ChatbotScreenState extends ConsumerState<ChatbotScreen> with SingleTicker
           curve: Curves.easeOut,
         );
       }
-    });
+      });
   }
 
   @override
@@ -57,7 +57,7 @@ class _ChatbotScreenState extends ConsumerState<ChatbotScreen> with SingleTicker
     _scrollController.dispose();
     _loadingController?.dispose();
     super.dispose();
-  }
+    }
 
   Widget _buildMessage(Map<String, String> message) {
     bool isUser = message['sender'] == 'user';
@@ -247,14 +247,14 @@ class _ChatbotScreenState extends ConsumerState<ChatbotScreen> with SingleTicker
       },
       child: Scaffold(
         backgroundColor: Colors.white,
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          title: const Text(
-            "챗봇과 기록하기 ",
-            style: TextStyle(color: Colors.black),
-          ),
-          iconTheme: const IconThemeData(color: Colors.black),
-          elevation: 1,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        title: const Text(
+          "챗봇과 기록하기 ",
+          style: TextStyle(color: Colors.black),
+        ),
+        iconTheme: const IconThemeData(color: Colors.black),
+        elevation: 1,
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
             onPressed: () {
@@ -336,25 +336,25 @@ class _ChatbotScreenState extends ConsumerState<ChatbotScreen> with SingleTicker
               },
             ),
           ],
-        ),
-        body: Column(
-          children: [
-            Expanded(
-              child: ListView.builder(
-                controller: _scrollController,
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: ListView.builder(
+              controller: _scrollController,
                 itemCount: _messages.length + (_isLoading || _isSaving ? 1 : 0),
-                itemBuilder: (context, index) {
+              itemBuilder: (context, index) {
                   if (index == _messages.length && (_isLoading || _isSaving)) {
                     return _buildLoadingMessage();
                   }
                   if (index < _messages.length) {
-                    return _buildMessage(_messages[index]);
+                return _buildMessage(_messages[index]);
                   }
                   return const SizedBox.shrink();
-                },
-              ),
+              },
             ),
-            const Divider(height: 1),
+          ),
+          const Divider(height: 1),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
@@ -521,45 +521,45 @@ class _ChatbotScreenState extends ConsumerState<ChatbotScreen> with SingleTicker
                 ],
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-              child: Row(
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+            child: Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _controller,
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _controller,
                       maxLines: null,
                       minLines: 1,
                       textInputAction: TextInputAction.newline,
                       keyboardType: TextInputType.multiline,
-                      decoration: InputDecoration(
+                    decoration: InputDecoration(
                         hintText: _selectedRecordType != null 
                             ? "$_selectedRecordType 입력하기..."
                             : "메시지를 입력하세요...",
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                        fillColor: const Color(0xFFF5F5F5),
-                        filled: true,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
                       ),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      fillColor: const Color(0xFFF5F5F5),
+                      filled: true,
                     ),
                   ),
+                ),
                   Padding(
                     padding: const EdgeInsets.only(left: 4, bottom: 4),
                     child: IconButton(
-                      icon: const Icon(Icons.send),
+                  icon: const Icon(Icons.send),
                       onPressed: (_isLoading || _isSaving) ? null : _sendMessage,
                       color: (_isLoading || _isSaving)
                           ? Colors.grey 
                           : const Color.fromARGB(255, 120, 120, 120),
                     ),
-                  )
-                ],
-              ),
-            )
-          ],
+                )
+              ],
+            ),
+          )
+        ],
         ),
       ),
     );

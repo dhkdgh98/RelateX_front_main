@@ -39,8 +39,8 @@ class _PhotoRecordScreenState extends ConsumerState<ChatbotRecordScreen> {
   DateTime selectedDate = DateTime.now();
 
   @override
-  void initState() {
-    super.initState();
+void initState() {
+  super.initState();
     _initializeControllers();
   }
 
@@ -53,7 +53,7 @@ class _PhotoRecordScreenState extends ConsumerState<ChatbotRecordScreen> {
       _emotionController.text = widget.parsedData!['emotion'] ?? '';
       _categoryController.text = widget.parsedData!['category'] ?? '';
       _recordTypeController.text = widget.recordType ?? widget.parsedData!['recordType'] ?? '';
-    }
+}
   }
 
   Future<void> _pickImages() async {
@@ -82,54 +82,54 @@ class _PhotoRecordScreenState extends ConsumerState<ChatbotRecordScreen> {
   }
 
   Future<void> _submitRecord() async {
-    final userId = ref.read(authProvider).userId;
-    debugPrint('[DEBUG] 👤 유저 ID: $userId');
+  final userId = ref.read(authProvider).userId;
+  debugPrint('[DEBUG] 👤 유저 ID: $userId');
 
-    if (userId == null) {
-      if (!mounted) return;
-      debugPrint('[DEBUG] ❌ 유저 ID 없음. 로그인 필요!');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('로그인이 필요합니다.')),
-      );
-      return;
-    }
+  if (userId == null) {
+    if (!mounted) return;
+    debugPrint('[DEBUG] ❌ 유저 ID 없음. 로그인 필요!');
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('로그인이 필요합니다.')),
+    );
+    return;
+  }
 
-    if (_titleController.text.isEmpty ||
+  if (_titleController.text.isEmpty ||
         _contentController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
+    ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('제목과 내용을 입력해주세요.')),
-      );
-      return;
-    }
+    );
+    return;
+  }
 
-    final recordData = {
-      'title': _titleController.text,
-      'content': _contentController.text,
-      'friend': _friendController.text,
-      'location': _locationController.text,
-      'emotion': _emotionController.text,
-      'category': _categoryController.text,
-      'recordType': _recordTypeController.text,
-      'date': selectedDate.toIso8601String(),
+  final recordData = {
+    'title': _titleController.text,
+    'content': _contentController.text,
+    'friend': _friendController.text,
+    'location': _locationController.text,
+    'emotion': _emotionController.text,
+    'category': _categoryController.text,
+    'recordType': _recordTypeController.text,
+    'date': selectedDate.toIso8601String(),
       'type': 'chatbot',
-    };
+  };
 
-    debugPrint('[DEBUG] 📝 기록 데이터: $recordData');
+  debugPrint('[DEBUG] 📝 기록 데이터: $recordData');
 
-    try {
+  try {
       final success = await HomeApi.postRecord(
         userId, 
         recordData, 
         _selectedImages.isEmpty ? null : _selectedImages
       );
-      debugPrint('[DEBUG] 📡 postRecord 결과: $success');
+    debugPrint('[DEBUG] 📡 postRecord 결과: $success');
 
-      if (!mounted) return;
+    if (!mounted) return;
 
-      if (success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('기록이 저장되었습니다!')),
-        );
+    if (success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('기록이 저장되었습니다!')),
+      );
         // 기록 저장 성공 시 homeProvider 무효화
         ref.invalidate(homeProvider);
 
@@ -139,19 +139,19 @@ class _PhotoRecordScreenState extends ConsumerState<ChatbotRecordScreen> {
           MaterialPageRoute(builder: (context) => const BottomNavScreen()),
           (route) => false,
         );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('기록 저장에 실패했습니다.')),
-        );
-      }
-    } catch (e) {
-      debugPrint('[ERROR] 🧨 예외 발생: $e');
-      if (!mounted) return;
+    } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('기록 중 오류가 발생했어요.')),
+        const SnackBar(content: Text('기록 저장에 실패했습니다.')),
       );
     }
+  } catch (e) {
+    debugPrint('[ERROR] 🧨 예외 발생: $e');
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('기록 중 오류가 발생했어요.')),
+    );
   }
+}
 
   @override
   Widget build(BuildContext context) {
