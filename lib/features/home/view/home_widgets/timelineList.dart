@@ -97,27 +97,23 @@ Widget buildTag(String text, {Color? color, bool useFixedColor = false}) {
       : color ?? tagColors[_random.nextInt(tagColors.length)]; // 랜덤 색상
 
   // 🏷️ 태그 위젯 생성
-  return Container(
-    padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
     margin: const EdgeInsets.only(right: 8.0, bottom: 8.0),
-    decoration: BoxDecoration(
+      decoration: BoxDecoration(
       color: tagColor,
-      borderRadius: BorderRadius.circular(16.0),
-    ),
-    child: Text(
-      text,
-      style: const TextStyle(fontSize: 12.0, color: Colors.black87),
-    ),
-  );
-}
+        borderRadius: BorderRadius.circular(16.0),
+      ),
+      child: Text(
+        text,
+        style: const TextStyle(fontSize: 12.0, color: Colors.black87),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     final filteredList = filteredEntries;
-    print('TimelineListView - Total entries: ${entries.length}');
-    print('TimelineListView - Filtered entries: ${filteredList.length}');
-    print('TimelineListView - Search query: $searchQuery');
-    print('TimelineListView - Date filter: $dateFilterStart to $dateFilterEnd');
     
     if (filteredList.isEmpty) {
       return Center(
@@ -139,74 +135,56 @@ Widget buildTag(String text, {Color? color, bool useFixedColor = false}) {
       );
     }
 
-return ListView.builder(
-  shrinkWrap: true,
-  physics: const NeverScrollableScrollPhysics(),
-  itemCount: filteredList.length,
-  itemBuilder: (context, index) {
-    final entry = filteredList[index];
-    print('Filtered Entry $index: ${entry.title} - ${entry.content}');
-
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-      child: Container(
-        padding: const EdgeInsets.all(16.0),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12.0),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black12,
-              blurRadius: 6,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // 상단 좌우
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: filteredList.length,
+      itemBuilder: (context, index) {
+        final entry = filteredList[index];
+        return Card(
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        entry.title,
-                        style: const TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-
-                      // 👑 수정된 부분: 친구 태그 + 장소 같은 줄에
-                      if (entry.friend.isNotEmpty || (entry.location?.isNotEmpty ?? false))
-                        Row(
-                          children: [
-                            if (entry.friend.isNotEmpty) buildTag(entry.friend),
-                            if (entry.location?.isNotEmpty ?? false)
-                              Padding(
-                                padding: const EdgeInsets.only(left: 8.0),
-                                child: Text(
-                                  entry.location!,
-                                  style: const TextStyle(
-                                    fontSize: 11,
-                                    color: Colors.grey,
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ),
-                    ],
-                  ),
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            entry.title,
+                            style: const TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          if (entry.friend.isNotEmpty || (entry.location?.isNotEmpty ?? false))
+                            Row(
+                              children: [
+                                if (entry.friend.isNotEmpty) buildTag(entry.friend),
+                                if (entry.location?.isNotEmpty ?? false)
+                                  Padding(
+                                    padding: const EdgeInsets.only(left: 8.0),
+                                    child: Text(
+                                      entry.location!,
+                                      style: const TextStyle(
+                                        fontSize: 11,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                        ],
+                      ),
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         PopupMenuButton<String>(
                           icon: const Icon(Icons.more_vert, size: 20),
@@ -261,62 +239,42 @@ return ListView.builder(
                         ),
                       ],
                     ),
-                    const SizedBox(height: 6),
-                    if ((entry.imagesBase64?.isNotEmpty ?? false))
-                      Container(
-                        width: 60,
-                        height: 60,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(8.0),
-                          image: DecorationImage(
-                            image: MemoryImage(
-                              base64Decode(entry.imagesBase64!.first.split(',').last),
-                            ),
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+
+                if (entry.content?.isNotEmpty ?? false) ...[
+                  Text(
+                    entry.content!,
+                    style: const TextStyle(fontSize: 13),
+                  ),
+                  const SizedBox(height: 12),
+                ],
+
+                Row(
+                  children: [
+                    if (entry.emotion?.isNotEmpty ?? false)
+                      buildTag(entry.emotion!),
+                    if (entry.category?.isNotEmpty ?? false)
+                      buildTag(entry.category!),
+                  ],
+                ),
+                const SizedBox(height: 12),
+
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      '${entry.date.year}.${entry.date.month.toString().padLeft(2, '0')}.${entry.date.day.toString().padLeft(2, '0')}',
+                      style: const TextStyle(fontSize: 12, color: Colors.grey),
+                    ),
                   ],
                 ),
               ],
             ),
-            const SizedBox(height: 12),
-
-            // 본문 내용
-            if (entry.content?.isNotEmpty ?? false) ...[
-              Text(
-                entry.content!,
-                style: const TextStyle(fontSize: 13),
-              ),
-              const SizedBox(height: 12),
-            ],
-
-            // 감정 & 카테고리 태그
-            Row(
-              children: [
-                if (entry.emotion?.isNotEmpty ?? false)
-                  buildTag(entry.emotion!),
-                if (entry.category?.isNotEmpty ?? false)
-                  buildTag(entry.category!),
-              ],
-            ),
-            const SizedBox(height: 12),
-
-            // 댓글/북마크 아이콘 + 날짜
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  '${entry.date.year}.${entry.date.month.toString().padLeft(2, '0')}.${entry.date.day.toString().padLeft(2, '0')}',
-                  style: const TextStyle(fontSize: 12, color: Colors.grey),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
-  },
-);
   }
 }

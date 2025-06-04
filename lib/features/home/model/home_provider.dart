@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../auth/controller/auth_provider.dart';
 import 'timeline_model.dart';
 import '../api/home_api.dart';
+import 'package:flutter/foundation.dart';
 
 final homeProvider = FutureProvider<List<TimelineEntry>>((ref) async {
   final userId = ref.watch(authProvider).userId;
@@ -24,4 +25,12 @@ final homeProvider = FutureProvider<List<TimelineEntry>>((ref) async {
   } catch (e) {
     throw Exception('타임라인 불러오기 실패: $e');
   }
+});
+
+final recordOptionsProvider = FutureProvider<Map<String, List<String>>>((ref) async {
+  final userId = ref.watch(authProvider).userId;
+  if (userId == null) {
+    throw Exception('로그인이 필요합니다.');
+  }
+  return await HomeApi.getRecordOptions(userId);
 });

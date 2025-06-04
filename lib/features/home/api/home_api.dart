@@ -4,6 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:relate_x_front_main/constants/api_config.dart';
 import 'package:flutter/foundation.dart';
 
+
 class HomeApi {
   static String get _homeBase => ApiConfig.baseUrl;
 
@@ -19,14 +20,9 @@ class HomeApi {
       );
 
       print('[DEBUG] 📥 응답 상태: ${response.statusCode}');
-      print('[DEBUG] 📥 응답 내용: ${response.body}');
 
       if (response.statusCode == 200) {
         final List<dynamic> timelineData = jsonDecode(response.body) as List;
-        // 각 타임라인 항목의 _id 필드 확인
-        for (var entry in timelineData) {
-          print('[DEBUG] 📝 타임라인 항목 ID: ${entry['_id']}');
-        }
         return timelineData;
       } else {
         throw Exception('타임라인 데이터 요청 실패: ${response.statusCode} - ${response.body}');
@@ -137,6 +133,97 @@ class HomeApi {
       }
     } catch (e) {
       debugPrint('[DEBUG] ❌ 기록 삭제 오류: $e');
+      rethrow;
+    }
+  }
+
+  static Future<Map<String, List<String>>> getRecordOptions(String userId) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$_homeBase/record/options?userId=$userId'),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return {
+          'friends': List<String>.from(data['friends']),
+          'locations': List<String>.from(data['locations']),
+          'emotions': List<String>.from(data['emotions']),
+          'categories': List<String>.from(data['categories']),
+          'recordTypes': List<String>.from(data['recordTypes']),
+        };
+      } else {
+        throw Exception('Failed to load record options');
+      }
+    } catch (e) {
+      print('Error loading record options: $e');
+      // 기본 옵션 반환
+      return {
+        'friends': ['나', '가족', '친구', '동료', '연인', '기타'],
+        'locations': ['집', '회사', '학교', '카페', '공원', '도서관', '자취방', '영화관', '기타'],
+        'emotions': ['행복', '기쁨', '설렘', '평온', '차분함', '불안', '걱정', '슬픔', '화남', '자신감', '의욕', '피곤함', '지루함', '기타'],
+        'categories': ['일상', '성장', '자기성찰', '관계', '건강', '취미', '학업', '직장', '기타'],
+        'recordTypes': ['이벤트', '생각', '대화', '느낌', '목표', '성취', '기타'],
+      };
+    }
+  }
+
+  static Future<Map<String, List<String>>> updateRecordOptions(
+    String userId,
+    Map<String, List<String>> options,
+  ) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$_homeBase/record/options?userId=$userId'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode(options),
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return {
+          'friends': List<String>.from(data['options']['friends']),
+          'locations': List<String>.from(data['options']['locations']),
+          'emotions': List<String>.from(data['options']['emotions']),
+          'categories': List<String>.from(data['options']['categories']),
+          'recordTypes': List<String>.from(data['options']['recordTypes']),
+        };
+      } else {
+        throw Exception('Failed to update record options');
+      }
+    } catch (e) {
+      print('Error updating record options: $e');
+      rethrow;
+    }
+  }
+
+  static Future<List<String>> addOption(
+    String userId,
+    String category,
+    String value,
+  ) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$_homeBase/record/options/add?userId=$userId'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          'category': category,
+          'value': value,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return List<String>.from(data['options']);
+      } else {
+        throw Exception('Failed to add option');
+      }
+    } catch (e) {
+      print('Error adding option: $e');
       rethrow;
     }
   }

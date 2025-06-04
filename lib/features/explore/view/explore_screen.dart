@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../widgets/community_card.dart';
+import '../widgets/module_card.dart';
+import '../widgets/content_card.dart';
 
 class ExploreScreen extends ConsumerStatefulWidget {
   const ExploreScreen({super.key});
@@ -36,37 +39,25 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
             // 🔹 나머지 스크롤 가능한 콘텐츠
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _buildSectionHeader('커뮤니티'),
-                    const SizedBox(height: 8),
-                    _buildHorizontalCardList([
-                      '공개 타임라인 1',
-                      '공개 타임라인 2',
-                      '공개 타임라인 3',
-                    ]),
+                    const SizedBox(height: 16),
+                    _buildCommunityList(),
 
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 32),
 
                     _buildSectionHeader('모듈'),
-                    const SizedBox(height: 8),
-                    _buildHorizontalCardList([
-                      '애착 분석',
-                      '감정 분석',
-                      'CBT 분석',
-                    ]),
+                    const SizedBox(height: 16),
+                    _buildModuleList(),
 
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 32),
 
                     _buildSectionHeader('컨텐츠'),
-                    const SizedBox(height: 8),
-                    _buildHorizontalCardList([
-                      '감정 일기 쓰는법',
-                      'Relate X 활용 꿀팁',
-                      '모듈 사용법',
-                    ]),
+                    const SizedBox(height: 16),
+                    _buildContentList(),
                   ],
                 ),
               ),
@@ -81,61 +72,148 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
   Widget _buildSectionHeader(String title) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20.0),
-      child:Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          title,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+            ),
           ),
-        ),
-        TextButton(
-          onPressed: () {
-            // TODO: 더보기 기능 구현
-          },
-          child: const Text('더보기'),
-        ),
-      ],
-    ),
+          TextButton(
+            onPressed: () {
+              // TODO: 더보기 기능 구현
+            },
+            child: const Text('더보기'),
+          ),
+        ],
+      ),
     );
-    
   }
 
-  /// 📦 좌우 스크롤 카드 리스트
-  Widget _buildHorizontalCardList(List<String> items) {
+  /// 📦 커뮤니티 카드 리스트
+  Widget _buildCommunityList() {
+    final communities = [
+      {
+        'title': '공개 타임라인 1',
+        'description': '일상의 순간을 공유하는 공간',
+        'memberCount': '1.2k',
+      },
+      {
+        'title': '공개 타임라인 2',
+        'description': '감정을 나누는 커뮤니티',
+        'memberCount': '856',
+      },
+      {
+        'title': '공개 타임라인 3',
+        'description': '힐링과 위로의 공간',
+        'memberCount': '2.3k',
+      },
+    ];
+
     return SizedBox(
       height: 140,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
-        itemCount: items.length,
+        itemCount: communities.length,
         separatorBuilder: (_, __) => const SizedBox(width: 12),
         itemBuilder: (context, index) {
-          return Container(
-            width: 200,
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.blue.shade50,
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.15),
-                  blurRadius: 6,
-                  offset: const Offset(2, 4),
-                ),
-              ],
-            ),
-            child: Center(
-              child: Text(
-                items[index],
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
+          final community = communities[index];
+          return CommunityCard(
+            title: community['title']!,
+            description: community['description'],
+            memberCount: community['memberCount'],
+            onTap: () {
+              // TODO: 커뮤니티 상세 페이지로 이동
+            },
+          );
+        },
+      ),
+    );
+  }
+
+  /// 📦 모듈 카드 리스트
+  Widget _buildModuleList() {
+    final modules = [
+      {
+        'title': '애착 분석',
+        'description': '당신의 애착 유형을 분석해보세요',
+        'icon': Icons.psychology,
+      },
+      {
+        'title': '감정 분석',
+        'description': '감정 패턴을 파악하고 관리하세요',
+        'icon': Icons.mood,
+      },
+      {
+        'title': 'CBT 분석',
+        'description': '인지행동치료 기반 분석',
+        'icon': Icons.psychology_alt,
+      },
+    ];
+
+    return SizedBox(
+      height: 140,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: modules.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 12),
+        itemBuilder: (context, index) {
+          final module = modules[index];
+          return ModuleCard(
+            title: module['title'] as String,
+            description: module['description'] as String?,
+            icon: module['icon'] as IconData,
+            onTap: () {
+              // TODO: 모듈 상세 페이지로 이동
+            },
+          );
+        },
+      ),
+    );
+  }
+
+  /// 📦 컨텐츠 카드 리스트
+  Widget _buildContentList() {
+    final contents = [
+      {
+        'title': '감정 일기 쓰는법',
+        'description': '효과적인 감정 일기 작성 방법',
+        'author': '심리학자 김민수',
+        'readTime': '5분',
+      },
+      {
+        'title': 'Relate X 활용 꿀팁',
+        'description': '앱을 더 효과적으로 사용하는 방법',
+        'author': 'Relate X 팀',
+        'readTime': '3분',
+      },
+      {
+        'title': '모듈 사용법',
+        'description': '각 모듈의 특징과 활용법',
+        'author': '전문가 이지은',
+        'readTime': '7분',
+      },
+    ];
+
+    return SizedBox(
+      height: 140,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: contents.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 12),
+        itemBuilder: (context, index) {
+          final content = contents[index];
+          return ContentCard(
+            title: content['title']!,
+            description: content['description'],
+            author: content['author'],
+            readTime: content['readTime'],
+            onTap: () {
+              // TODO: 컨텐츠 상세 페이지로 이동
+            },
           );
         },
       ),
