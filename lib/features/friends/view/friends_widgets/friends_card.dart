@@ -36,7 +36,7 @@ class FriendCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // 🧸 이름 + 관계 태그 Row
+                // 🧸 이름 + 생일 Row
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -48,27 +48,26 @@ class FriendCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    Expanded(
-                      child: Wrap(
-                        spacing: 4,
-                        runSpacing: 4,
-                        children: tags
-                            .map((tag) => _buildMetaTag('🏷️', tag, const Color(0xFFFFE0B5)))
-                            .toList(),
+                    Text(
+                      '🎂 $birthday',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black87,
                       ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 10),
-                // 💫 나머지 메타 태그들
+                // 💫 태그들 Row
                 Wrap(
                   spacing: 4,
                   runSpacing: 4,
                   children: [
-                    _buildMetaTag('🎂', birthday, const Color(0xFFFFD1DC)),
+                    ...tags.map((tag) => _buildMetaTag('🏷️', tag, const Color(0xFFFFE0B5))),
                     _buildMetaTag('', mbti, const Color(0xFFB4D2FF)),
                     ...interests.map((interest) =>
-                        _buildMetaTag('✨', interest, const Color(0xFFC8FACC))),
+                        _buildMetaTag('', interest, const Color(0xFFC8FACC))),
                   ],
                 ),
               ],

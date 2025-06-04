@@ -3,6 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../widgets/community_card.dart';
 import '../widgets/module_card.dart';
 import '../widgets/content_card.dart';
+import 'community_list_screen.dart';
+import 'module_list_screen.dart';
+import 'content_list_screen.dart';
 
 class ExploreScreen extends ConsumerStatefulWidget {
   const ExploreScreen({super.key});
@@ -84,7 +87,32 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
           ),
           TextButton(
             onPressed: () {
-              // TODO: 더보기 기능 구현
+              switch (title) {
+                case '커뮤니티':
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const CommunityListScreen(),
+                    ),
+                  );
+                  break;
+                case '모듈':
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const ModuleListScreen(),
+                    ),
+                  );
+                  break;
+                case '컨텐츠':
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const ContentListScreen(),
+                    ),
+                  );
+                  break;
+              }
             },
             child: const Text('더보기'),
           ),
@@ -97,17 +125,17 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
   Widget _buildCommunityList() {
     final communities = [
       {
-        'title': '공개 타임라인 1',
+        'title': '일상',
         'description': '일상의 순간을 공유하는 공간',
         'memberCount': '1.2k',
       },
       {
-        'title': '공개 타임라인 2',
+        'title': '감정',
         'description': '감정을 나누는 커뮤니티',
         'memberCount': '856',
       },
       {
-        'title': '공개 타임라인 3',
+        'title': '힐링',
         'description': '힐링과 위로의 공간',
         'memberCount': '2.3k',
       },

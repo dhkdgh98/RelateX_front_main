@@ -128,26 +128,26 @@ class _PhotoRecordScreenState extends ConsumerState<PhotoRecordScreen> {
   }
 
   Future<void> _submitRecord() async {
-    final userId = ref.read(authProvider).userId;
-    debugPrint('[DEBUG] 👤 유저 ID: $userId');
+  final userId = ref.read(authProvider).userId;
+  debugPrint('[DEBUG] 👤 유저 ID: $userId');
 
-    if (userId == null) {
-      if (!mounted) return;
-      debugPrint('[DEBUG] ❌ 유저 ID 없음. 로그인 필요!');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('로그인이 필요합니다.')),
-      );
-      return;
-    }
+  if (userId == null) {
+    if (!mounted) return;
+    debugPrint('[DEBUG] ❌ 유저 ID 없음. 로그인 필요!');
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('로그인이 필요합니다.')),
+    );
+    return;
+  }
 
-    if (_titleController.text.isEmpty ||
-        _contentController.text.isEmpty ||
-        _selectedImages.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('제목, 내용을 입력하고 이미지를 선택해주세요.')),
-      );
-      return;
-    }
+  if (_titleController.text.isEmpty ||
+      _contentController.text.isEmpty ||
+      _selectedImages.isEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('제목, 내용을 입력하고 이미지를 선택해주세요.')),
+    );
+    return;
+  }
 
     // 선택된 옵션 저장
     final recordOptions = ref.read(recordOptionsProvider);
@@ -178,30 +178,30 @@ class _PhotoRecordScreenState extends ConsumerState<PhotoRecordScreen> {
       }
     }
 
-    final recordData = {
-      'title': _titleController.text,
-      'content': _contentController.text,
+  final recordData = {
+    'title': _titleController.text,
+    'content': _contentController.text,
       'friend': selectedFriend,
       'location': selectedLocation,
       'emotion': selectedEmotion,
       'category': selectedCategory,
       'recordType': selectedRecordType,
-      'date': selectedDate.toIso8601String(),
-      'type': 'photo',
-    };
+    'date': selectedDate.toIso8601String(),
+    'type': 'photo',
+  };
 
-    debugPrint('[DEBUG] 📝 기록 데이터: $recordData');
+  debugPrint('[DEBUG] 📝 기록 데이터: $recordData');
 
-    try {
-      final success = await HomeApi.postRecord(userId, recordData, _selectedImages);
-      debugPrint('[DEBUG] 📡 postRecord 결과: $success');
+  try {
+    final success = await HomeApi.postRecord(userId, recordData, _selectedImages);
+    debugPrint('[DEBUG] 📡 postRecord 결과: $success');
 
-      if (!mounted) return;
+    if (!mounted) return;
 
-      if (success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('기록이 저장되었습니다!')),
-        );
+    if (success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('기록이 저장되었습니다!')),
+      );
         ref.invalidate(homeProvider);
         ref.invalidate(recordOptionsProvider); // 옵션 목록 갱신
         Navigator.pushAndRemoveUntil(
@@ -209,19 +209,19 @@ class _PhotoRecordScreenState extends ConsumerState<PhotoRecordScreen> {
           MaterialPageRoute(builder: (context) => const BottomNavScreen()),
           (route) => false,
         );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('기록 저장에 실패했습니다.')),
-        );
-      }
-    } catch (e) {
-      debugPrint('[ERROR] 🧨 예외 발생: $e');
-      if (!mounted) return;
+    } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('기록 중 오류가 발생했어요.')),
+        const SnackBar(content: Text('기록 저장에 실패했습니다.')),
       );
     }
+  } catch (e) {
+    debugPrint('[ERROR] 🧨 예외 발생: $e');
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('기록 중 오류가 발생했어요.')),
+    );
   }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -239,57 +239,57 @@ class _PhotoRecordScreenState extends ConsumerState<PhotoRecordScreen> {
       ),
       body: recordOptions.when(
         data: (options) => SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // 이미지 미리보기
-              if (_selectedImages.isNotEmpty)
-                Container(
-                  height: 200,
-                  margin: const EdgeInsets.only(bottom: 16),
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: _selectedImages.length,
-                    itemBuilder: (context, index) {
-                      return Padding(
-                        padding: const EdgeInsets.only(right: 8),
-                        child: Image.file(
-                          File(_selectedImages[index].path),
-                          width: 200,
-                          height: 200,
-                          fit: BoxFit.cover,
-                        ),
-                      );
-                    },
-                  ),
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // 이미지 미리보기
+            if (_selectedImages.isNotEmpty)
+              Container(
+                height: 200,
+                margin: const EdgeInsets.only(bottom: 16),
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: _selectedImages.length,
+                  itemBuilder: (context, index) {
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: Image.file(
+                        File(_selectedImages[index].path),
+                        width: 200,
+                        height: 200,
+                        fit: BoxFit.cover,
+                      ),
+                    );
+                  },
                 ),
-              
-              // 이미지 선택 버튼
-              ElevatedButton.icon(
-                onPressed: _pickImages,
-                icon: const Icon(Icons.add_photo_alternate),
-                label: const Text('이미지 선택'),
               ),
-              const SizedBox(height: 16),
+            
+            // 이미지 선택 버튼
+            ElevatedButton.icon(
+              onPressed: _pickImages,
+              icon: const Icon(Icons.add_photo_alternate),
+              label: const Text('이미지 선택'),
+            ),
+            const SizedBox(height: 16),
 
-              TextField(
-                controller: _titleController,
-                decoration: const InputDecoration(
-                  labelText: '제목',
-                  border: OutlineInputBorder(),
-                ),
+            TextField(
+              controller: _titleController,
+              decoration: const InputDecoration(
+                labelText: '제목',
+                border: OutlineInputBorder(),
               ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: _contentController,
-                decoration: const InputDecoration(
-                  labelText: '내용',
-                  border: OutlineInputBorder(),
-                ),
-                maxLines: 5,
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: _contentController,
+              decoration: const InputDecoration(
+                labelText: '내용',
+                border: OutlineInputBorder(),
               ),
-              const SizedBox(height: 16),
+              maxLines: 5,
+            ),
+            const SizedBox(height: 16),
 
               _buildSelector(
                 icon: Icons.person_add_alt_1,
@@ -496,9 +496,9 @@ class _SearchablePickerModalState extends State<_SearchablePickerModal> {
                     ),
                   );
                 },
-              ),
-            ],
-          ),
+            ),
+          ],
+        ),
           const SizedBox(height: 16),
           TextField(
             controller: _customInputController,

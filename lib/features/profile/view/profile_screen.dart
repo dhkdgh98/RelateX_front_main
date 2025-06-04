@@ -59,10 +59,26 @@ Widget build(BuildContext context) {
 
                 _roundedCard(
                   children: const [
-                    _infoItem(title: '📌 최근 관심사   ', value: '심리학, AI, 관계 탐색'),
-                    _infoItem(title: '👥 최근 만난 사람 ', value: '채린, 민수, 지혜'),
-                    _infoItem(title: '🧠 나의 성향 레포트', value: 'INFJ, 불안형 애착'),
-                    _infoItem(title: '📝 메타 데이터 요약', value: '감정: 섬세함, 주제: 관계 중심'),
+                    _infoItem(
+                      icon: Icons.psychology,
+                      title: '최근 관심사',
+                      value: '심리학, AI, 관계 탐색',
+                    ),
+                    _infoItem(
+                      icon: Icons.people,
+                      title: '최근 만난 사람',
+                      value: '채린, 민수, 지혜',
+                    ),
+                    _infoItem(
+                      icon: Icons.psychology_alt,
+                      title: '나의 성향 레포트',
+                      value: 'INFJ, 불안형 애착',
+                    ),
+                    _infoItem(
+                      icon: Icons.analytics,
+                      title: '메타 데이터 요약',
+                      value: '감정: 섬세함, 주제: 관계 중심',
+                    ),
                   ],
                 ),
 
@@ -120,8 +136,20 @@ Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.grey[100],
+        color: Colors.white,
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: Colors.grey.shade200,
+          width: 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+            spreadRadius: 1,
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -132,21 +160,51 @@ Widget build(BuildContext context) {
 }
 
 class _infoItem extends StatelessWidget {
+  final IconData icon;
   final String title;
   final String value;
 
-  const _infoItem({required this.title, required this.value});
+  const _infoItem({
+    required this.icon,
+    required this.title,
+    required this.value,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6.0),
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
-          const SizedBox(width: 8),
-          Expanded(child: Text(value)),
+          Icon(
+            icon,
+            size: 20,
+            color: Colors.deepPurple,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  value,
+                  style: TextStyle(
+                    color: Colors.grey.shade700,
+                    fontSize: 14,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );

@@ -138,9 +138,9 @@ Widget buildTag(String text, {Color? color, bool useFixedColor = false}) {
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      itemCount: filteredList.length,
+  itemCount: filteredList.length,
       itemBuilder: (context, index) {
-        final entry = filteredList[index];
+    final entry = filteredList[index];
         return Card(
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Padding(
@@ -158,28 +158,40 @@ Widget buildTag(String text, {Color? color, bool useFixedColor = false}) {
                           Text(
                             entry.title,
                             style: const TextStyle(
-                              fontSize: 15,
+                          fontSize: 15,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                           const SizedBox(height: 6),
-                          if (entry.friend.isNotEmpty || (entry.location?.isNotEmpty ?? false))
-                            Row(
-                              children: [
-                                if (entry.friend.isNotEmpty) buildTag(entry.friend),
-                                if (entry.location?.isNotEmpty ?? false)
-                                  Padding(
-                                    padding: const EdgeInsets.only(left: 8.0),
-                                    child: Text(
-                                      entry.location!,
-                                      style: const TextStyle(
-                                        fontSize: 11,
-                                        color: Colors.grey,
-                                      ),
+                      if (entry.friend.isNotEmpty || (entry.location?.isNotEmpty ?? false))
+                        Row(
+                          children: [
+                                if (entry.friend.isNotEmpty) ...[
+                                  const Icon(Icons.person_outline, size: 14, color: Colors.black87),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    entry.friend,
+                                  style: const TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.black87,
                                     ),
                                   ),
-                              ],
-                            ),
+                                ],
+                                if (entry.location?.isNotEmpty ?? false) ...[
+                                  if (entry.friend.isNotEmpty)
+                                    const Text(' · ', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                                  const Icon(Icons.location_on_outlined, size: 14, color: Colors.black87),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    entry.location!,
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.black87,
+                                  ),
+                                ),
+                                ],
+                          ],
+                        ),
                         ],
                       ),
                     ),
@@ -236,7 +248,7 @@ Widget buildTag(String text, {Color? color, bool useFixedColor = false}) {
                               ),
                             ),
                           ],
-                        ),
+                            ),
                       ],
                     ),
                   ],
@@ -246,7 +258,74 @@ Widget buildTag(String text, {Color? color, bool useFixedColor = false}) {
                 if (entry.content?.isNotEmpty ?? false) ...[
                   Text(
                     entry.content!,
-                    style: const TextStyle(fontSize: 13),
+                style: const TextStyle(fontSize: 13),
+                  ),
+                  const SizedBox(height: 12),
+                ],
+
+                if ((entry.imageUrls?.isNotEmpty ?? false) || (entry.imagesBase64?.isNotEmpty ?? false)) ...[
+                  SizedBox(
+                    height: 120,
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: entry.imagesBase64?.length ?? 0,
+                      itemBuilder: (context, index) {
+                        Widget imageWidget;
+                        
+                        // Base64 이미지 처리
+                        if (entry.imagesBase64 != null && index < entry.imagesBase64!.length) {
+                          try {
+                            final base64String = entry.imagesBase64![index];
+                            if (base64String.startsWith('data:image')) {
+                              // data:image/jpeg;base64, 형식의 문자열에서 실제 base64 데이터만 추출
+                              final base64Data = base64String.split(',')[1];
+                              imageWidget = Image.memory(
+                                base64Decode(base64Data),
+                                width: 120,
+                                height: 120,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  print('Base64 이미지 로드 실패: $error');
+                                  return Container(
+                                    width: 120,
+                                    height: 120,
+                                    color: Colors.grey[200],
+                                    child: const Icon(Icons.broken_image, color: Colors.grey),
+                                  );
+                                },
+                              );
+                            } else {
+                              throw Exception('잘못된 Base64 형식');
+                            }
+                          } catch (e) {
+                            print('Base64 이미지 처리 실패: $e');
+                            imageWidget = Container(
+                              width: 120,
+                              height: 120,
+                              color: Colors.grey[200],
+                              child: const Icon(Icons.broken_image, color: Colors.grey),
+                            );
+                          }
+                        }
+                        // 이미지가 없는 경우
+                        else {
+                          imageWidget = Container(
+                            width: 120,
+                            height: 120,
+                            color: Colors.grey[200],
+                            child: const Icon(Icons.broken_image, color: Colors.grey),
+                          );
+                        }
+
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 8.0),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: imageWidget,
+                          ),
+                        );
+                      },
+                    ),
                   ),
                   const SizedBox(height: 12),
                 ],

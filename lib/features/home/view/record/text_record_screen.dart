@@ -198,8 +198,8 @@ class _TextRecordScreenState extends ConsumerState<TextRecordScreen> {
             const SizedBox(width: 12),
             Expanded(
               child: Text(
-                selectedValue ?? defaultLabel,
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              selectedValue ?? defaultLabel,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 overflow: TextOverflow.ellipsis,
               ),
             ),
@@ -221,18 +221,18 @@ class _TextRecordScreenState extends ConsumerState<TextRecordScreen> {
     }
   }
 
-  Future<void> _submitRecord() async {
-    final userId = ref.read(authProvider).userId;
-    debugPrint('[DEBUG] 👤 유저 ID: $userId');
+Future<void> _submitRecord() async {
+  final userId = ref.read(authProvider).userId;
+  debugPrint('[DEBUG] 👤 유저 ID: $userId');
 
-    if (userId == null) {
-      if (!mounted) return;
-      debugPrint('[DEBUG] ❌ 유저 ID 없음. 로그인 필요!');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('로그인이 필요합니다.')),
-      );
-      return;
-    }
+  if (userId == null) {
+    if (!mounted) return;
+    debugPrint('[DEBUG] ❌ 유저 ID 없음. 로그인 필요!');
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('로그인이 필요합니다.')),
+    );
+    return;
+  }
 
     // 선택된 옵션 저장
     final recordOptions = ref.read(recordOptionsProvider);
@@ -261,55 +261,55 @@ class _TextRecordScreenState extends ConsumerState<TextRecordScreen> {
         );
         return;
       }
+  }
+
+  final recordData = {
+    'title': _titleController.text,
+    'content': _contentController.text,
+    'friend': selectedFriend,
+    'location': selectedLocation,
+    'emotion': selectedEmotion,
+    'category': selectedCategory,
+    'recordType': selectedRecordType,
+    'date': selectedDate.toIso8601String(),
+  };
+
+  debugPrint('[DEBUG] 📝 기록 데이터: $recordData');
+
+  try {
+    final success = await HomeApi.postRecord(userId, recordData);
+    debugPrint('[DEBUG] 📡 postRecord 결과: $success');
+
+    if (!mounted) {
+      debugPrint('[DEBUG] ❗ context unmouted. 화면이 사라짐.');
+      return;
     }
 
-    final recordData = {
-      'title': _titleController.text,
-      'content': _contentController.text,
-      'friend': selectedFriend,
-      'location': selectedLocation,
-      'emotion': selectedEmotion,
-      'category': selectedCategory,
-      'recordType': selectedRecordType,
-      'date': selectedDate.toIso8601String(),
-    };
-
-    debugPrint('[DEBUG] 📝 기록 데이터: $recordData');
-
-    try {
-      final success = await HomeApi.postRecord(userId, recordData);
-      debugPrint('[DEBUG] 📡 postRecord 결과: $success');
-
-      if (!mounted) {
-        debugPrint('[DEBUG] ❗ context unmouted. 화면이 사라짐.');
-        return;
-      }
-
-      if (success) {
-        debugPrint('[DEBUG] ✅ 기록 저장 성공! 홈화면으로 이동합니다.');
-        if (mounted) {
-          ref.invalidate(homeProvider);
+    if (success) {
+      debugPrint('[DEBUG] ✅ 기록 저장 성공! 홈화면으로 이동합니다.');
+      if (mounted) {
+        ref.invalidate(homeProvider);
           ref.invalidate(recordOptionsProvider); // 옵션 목록 갱신
-          Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(builder: (context) => const BottomNavScreen()),
-            (route) => false,
-          );
-        }
-      } else {
-        debugPrint('[DEBUG] ❌ 기록 저장 실패');
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('기록 저장에 실패했습니다.')),
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => const BottomNavScreen()),
+          (route) => false,
         );
       }
-    } catch (e, stack) {
-      debugPrint('[ERROR] 🧨 예외 발생: $e\n$stack');
-      if (!mounted) return;
+    } else {
+      debugPrint('[DEBUG] ❌ 기록 저장 실패');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('오류가 발생했습니다: $e')),
+        const SnackBar(content: Text('기록 저장에 실패했습니다.')),
       );
     }
+  } catch (e, stack) {
+    debugPrint('[ERROR] 🧨 예외 발생: $e\n$stack');
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('오류가 발생했습니다: $e')),
+    );
   }
+}
 }
 
 class _SearchablePickerModal extends StatefulWidget {
@@ -382,13 +382,13 @@ class _SearchablePickerModalState extends State<_SearchablePickerModal> {
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
+        children: [
+          Text(
                 widget.title,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
               ),
               IconButton(
                 icon: const Icon(Icons.add_circle_outline),
