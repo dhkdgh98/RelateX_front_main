@@ -265,7 +265,7 @@ Widget buildTag(String text, {Color? color, bool useFixedColor = false}) {
 
                 if ((entry.imageUrls?.isNotEmpty ?? false) || (entry.imagesBase64?.isNotEmpty ?? false)) ...[
                   SizedBox(
-                    height: 120,
+                    height: 300,
                     child: ListView.builder(
                       scrollDirection: Axis.horizontal,
                       itemCount: entry.imagesBase64?.length ?? 0,
@@ -277,18 +277,17 @@ Widget buildTag(String text, {Color? color, bool useFixedColor = false}) {
                           try {
                             final base64String = entry.imagesBase64![index];
                             if (base64String.startsWith('data:image')) {
-                              // data:image/jpeg;base64, 형식의 문자열에서 실제 base64 데이터만 추출
                               final base64Data = base64String.split(',')[1];
                               imageWidget = Image.memory(
                                 base64Decode(base64Data),
-                                width: 120,
-                                height: 120,
+                                width: 300,
+                                height: 300,
                                 fit: BoxFit.cover,
                                 errorBuilder: (context, error, stackTrace) {
                                   print('Base64 이미지 로드 실패: $error');
                                   return Container(
-                                    width: 120,
-                                    height: 120,
+                                    width: 300,
+                                    height: 300,
                                     color: Colors.grey[200],
                                     child: const Icon(Icons.broken_image, color: Colors.grey),
                                   );
@@ -300,8 +299,8 @@ Widget buildTag(String text, {Color? color, bool useFixedColor = false}) {
                           } catch (e) {
                             print('Base64 이미지 처리 실패: $e');
                             imageWidget = Container(
-                              width: 120,
-                              height: 120,
+                              width: 300,
+                              height: 300,
                               color: Colors.grey[200],
                               child: const Icon(Icons.broken_image, color: Colors.grey),
                             );
@@ -310,24 +309,24 @@ Widget buildTag(String text, {Color? color, bool useFixedColor = false}) {
                         // 이미지가 없는 경우
                         else {
                           imageWidget = Container(
-                            width: 120,
-                            height: 120,
+                            width: 300,
+                            height: 300,
                             color: Colors.grey[200],
                             child: const Icon(Icons.broken_image, color: Colors.grey),
                           );
                         }
 
                         return Padding(
-                          padding: const EdgeInsets.only(right: 8.0),
+                          padding: const EdgeInsets.only(right: 12.0),
                           child: ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(12),
                             child: imageWidget,
                           ),
                         );
                       },
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 16),
                 ],
 
                 Row(
