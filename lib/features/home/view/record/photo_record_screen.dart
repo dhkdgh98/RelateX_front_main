@@ -7,6 +7,7 @@ import '../../api/home_api.dart';
 import '../../../auth/controller/auth_provider.dart';
 import '../../model/home_provider.dart';
 import '../../../bottom_nav/view/bottom_nav_screen.dart';
+import 'module_apply.dart';
 
 class PhotoRecordScreen extends ConsumerStatefulWidget {
   const PhotoRecordScreen({super.key});
@@ -232,8 +233,39 @@ class _PhotoRecordScreenState extends ConsumerState<PhotoRecordScreen> {
         title: const Text('이미지 기록'),
         actions: [
           TextButton(
-            onPressed: _submitRecord,
-            child: const Text('저장'),
+            onPressed: () {
+              if (_titleController.text.isEmpty ||
+                  _contentController.text.isEmpty ||
+                  _selectedImages.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('제목, 내용을 입력하고 이미지를 선택해주세요.')),
+                );
+                return;
+              }
+
+              final recordData = {
+                'title': _titleController.text,
+                'content': _contentController.text,
+                'friend': selectedFriend,
+                'location': selectedLocation,
+                'emotion': selectedEmotion,
+                'category': selectedCategory,
+                'recordType': selectedRecordType,
+                'date': selectedDate.toIso8601String(),
+                'type': 'photo',
+              };
+
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ModuleApplyScreen(
+                    recordData: recordData,
+                    images: _selectedImages,
+                  ),
+                ),
+              );
+            },
+            child: const Text('다음'),
           ),
         ],
       ),

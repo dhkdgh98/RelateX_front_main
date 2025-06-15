@@ -3,5 +3,5 @@
 class ApiConfig {
   // static const String baseUrl = 'https://e4af-175-204-236-26.ngrok-free.app/api';
   // static const String baseUrl = 'http://192.168.0.5:5000/api';
-  static const String baseUrl = 'http://10.20.4.224:5000/api';
+  static const String baseUrl = 'http://192.168.0.43:5000/api';
 }

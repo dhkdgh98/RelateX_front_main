@@ -8,6 +8,7 @@ import '../../api/home_api.dart';
 import '../../../auth/controller/auth_provider.dart';
 import '../../model/home_provider.dart';
 import '../../../bottom_nav/view/bottom_nav_screen.dart';
+import 'module_apply.dart';
 
 
 class ChatbotRecordScreen extends ConsumerStatefulWidget {
@@ -160,8 +161,38 @@ void initState() {
         title: const Text('챗봇 기록'),
         actions: [
           TextButton(
-            onPressed: _submitRecord,
-            child: const Text('저장'),
+            onPressed: () {
+              if (_titleController.text.isEmpty ||
+                  _contentController.text.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('제목과 내용을 입력해주세요.')),
+                );
+                return;
+              }
+
+              final recordData = {
+                'title': _titleController.text,
+                'content': _contentController.text,
+                'friend': _friendController.text,
+                'location': _locationController.text,
+                'emotion': _emotionController.text,
+                'category': _categoryController.text,
+                'recordType': _recordTypeController.text,
+                'date': selectedDate.toIso8601String(),
+                'type': 'chatbot',
+              };
+
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ModuleApplyScreen(
+                    recordData: recordData,
+                    images: _selectedImages.isEmpty ? null : _selectedImages,
+                  ),
+                ),
+              );
+            },
+            child: const Text('다음'),
           ),
         ],
       ),

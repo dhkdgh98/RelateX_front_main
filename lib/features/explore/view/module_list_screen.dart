@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../widgets/module_card.dart';
+import 'emotion_analysis_screen.dart';
 
 class ModuleListScreen extends StatelessWidget {
   const ModuleListScreen({super.key});
@@ -8,14 +9,22 @@ class ModuleListScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final modules = [
       {
-        'title': '애착 분석',
-        'description': '당신의 애착 유형을 분석해보세요',
-        'icon': Icons.psychology,
-      },
-      {
         'title': '감정 분석',
         'description': '감정 패턴을 파악하고 관리하세요',
         'icon': Icons.mood,
+        'onTap': () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const EmotionAnalysisScreen(),
+            ),
+          );
+        },
+      },
+      {
+        'title': '애착 분석',
+        'description': '당신의 애착 유형을 분석해보세요',
+        'icon': Icons.psychology,
       },
       {
         'title': 'CBT 분석',
@@ -49,9 +58,7 @@ class ModuleListScreen extends StatelessWidget {
             title: module['title'] as String,
             description: module['description'] as String?,
             icon: module['icon'] as IconData,
-            onTap: () {
-              // TODO: 모듈 상세 페이지로 이동
-            },
+            onTap: module['onTap'] as VoidCallback?,
           );
         },
       ),

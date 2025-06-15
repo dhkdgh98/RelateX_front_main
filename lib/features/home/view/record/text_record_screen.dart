@@ -4,6 +4,7 @@ import '../../api/home_api.dart';
 import '../../../auth/controller/auth_provider.dart';
 import '../../model/home_provider.dart';
 import '../../../bottom_nav/view/bottom_nav_screen.dart';
+import 'module_apply.dart';
 
 
 class TextRecordScreen extends ConsumerStatefulWidget {
@@ -35,8 +36,37 @@ class _TextRecordScreenState extends ConsumerState<TextRecordScreen> {
         title: const Text('텍스트 기록'),
         actions: [
           TextButton(
-            onPressed: _submitRecord,
-            child: const Text('저장'),
+            onPressed: () {
+              if (_titleController.text.isEmpty ||
+                  _contentController.text.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('제목과 내용을 입력해주세요.')),
+                );
+                return;
+              }
+
+              final recordData = {
+                'title': _titleController.text,
+                'content': _contentController.text,
+                'friend': selectedFriend,
+                'location': selectedLocation,
+                'emotion': selectedEmotion,
+                'category': selectedCategory,
+                'recordType': selectedRecordType,
+                'date': selectedDate.toIso8601String(),
+                'type': 'text',
+              };
+
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ModuleApplyScreen(
+                    recordData: recordData,
+                  ),
+                ),
+              );
+            },
+            child: const Text('다음'),
           ),
         ],
       ),
@@ -221,18 +251,18 @@ class _TextRecordScreenState extends ConsumerState<TextRecordScreen> {
     }
   }
 
-Future<void> _submitRecord() async {
-  final userId = ref.read(authProvider).userId;
-  debugPrint('[DEBUG] 👤 유저 ID: $userId');
+  Future<void> _submitRecord() async {
+    final userId = ref.read(authProvider).userId;
+    debugPrint('[DEBUG] 👤 유저 ID: $userId');
 
-  if (userId == null) {
-    if (!mounted) return;
-    debugPrint('[DEBUG] ❌ 유저 ID 없음. 로그인 필요!');
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('로그인이 필요합니다.')),
-    );
-    return;
-  }
+    if (userId == null) {
+      if (!mounted) return;
+      debugPrint('[DEBUG] ❌ 유저 ID 없음. 로그인 필요!');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('로그인이 필요합니다.')),
+      );
+      return;
+    }
 
     // 선택된 옵션 저장
     final recordOptions = ref.read(recordOptionsProvider);
@@ -261,55 +291,55 @@ Future<void> _submitRecord() async {
         );
         return;
       }
-  }
-
-  final recordData = {
-    'title': _titleController.text,
-    'content': _contentController.text,
-    'friend': selectedFriend,
-    'location': selectedLocation,
-    'emotion': selectedEmotion,
-    'category': selectedCategory,
-    'recordType': selectedRecordType,
-    'date': selectedDate.toIso8601String(),
-  };
-
-  debugPrint('[DEBUG] 📝 기록 데이터: $recordData');
-
-  try {
-    final success = await HomeApi.postRecord(userId, recordData);
-    debugPrint('[DEBUG] 📡 postRecord 결과: $success');
-
-    if (!mounted) {
-      debugPrint('[DEBUG] ❗ context unmouted. 화면이 사라짐.');
-      return;
     }
 
-    if (success) {
-      debugPrint('[DEBUG] ✅ 기록 저장 성공! 홈화면으로 이동합니다.');
-      if (mounted) {
-        ref.invalidate(homeProvider);
+    final recordData = {
+      'title': _titleController.text,
+      'content': _contentController.text,
+      'friend': selectedFriend,
+      'location': selectedLocation,
+      'emotion': selectedEmotion,
+      'category': selectedCategory,
+      'recordType': selectedRecordType,
+      'date': selectedDate.toIso8601String(),
+    };
+
+    debugPrint('[DEBUG] 📝 기록 데이터: $recordData');
+
+    try {
+      final success = await HomeApi.postRecord(userId, recordData);
+      debugPrint('[DEBUG] 📡 postRecord 결과: $success');
+
+      if (!mounted) {
+        debugPrint('[DEBUG] ❗ context unmouted. 화면이 사라짐.');
+        return;
+      }
+
+      if (success) {
+        debugPrint('[DEBUG] ✅ 기록 저장 성공! 홈화면으로 이동합니다.');
+        if (mounted) {
+          ref.invalidate(homeProvider);
           ref.invalidate(recordOptionsProvider); // 옵션 목록 갱신
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => const BottomNavScreen()),
-          (route) => false,
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => const BottomNavScreen()),
+            (route) => false,
+          );
+        }
+      } else {
+        debugPrint('[DEBUG] ❌ 기록 저장 실패');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('기록 저장에 실패했습니다.')),
         );
       }
-    } else {
-      debugPrint('[DEBUG] ❌ 기록 저장 실패');
+    } catch (e, stack) {
+      debugPrint('[ERROR] 🧨 예외 발생: $e\n$stack');
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('기록 저장에 실패했습니다.')),
+        SnackBar(content: Text('오류가 발생했습니다: $e')),
       );
     }
-  } catch (e, stack) {
-    debugPrint('[ERROR] 🧨 예외 발생: $e\n$stack');
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('오류가 발생했습니다: $e')),
-    );
   }
-}
 }
 
 class _SearchablePickerModal extends StatefulWidget {
