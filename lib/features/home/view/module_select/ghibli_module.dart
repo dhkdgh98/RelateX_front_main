@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:developer' as developer;
+import 'dart:io';
 import '../../../../constants/api_config.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../auth/controller/auth_provider.dart';
@@ -20,10 +21,12 @@ class GhibliModule {
 
     final url = '${ApiConfig.baseUrl}/ghibli/generate';
     final body = {
-      'userId': userId,
-      'content': content,
+      'user_id': userId,
+      'diary': content,
+      'gender': 'female',
+      'node_server_url': '${ApiConfig.baseUrl}/ghibli/generate'
     };
-
+    
     debugPrint(
       '🔄 지브리 이미지 생성 요청\n'
       'URL: $url\n'
@@ -34,7 +37,7 @@ class GhibliModule {
       final response = await http.post(
         Uri.parse(url),
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json; charset=utf-8',
         },
         body: jsonEncode(body),
       );
@@ -42,26 +45,27 @@ class GhibliModule {
       debugPrint(
         '📡 지브리 이미지 생성 응답\n'
         'Status: ${response.statusCode}\n'
-        'Body: ${response.body}',
+        'Content-Type: ${response.headers['content-type']}',
       );
 
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        final imageData = data['data']['imageData'];
-        
-        debugPrint(
-          '✅ 지브리 이미지 생성 성공\n'
-          'Image Data: ${imageData.substring(0, 50)}...',
-        );
-        
-        return imageData;
+        try {
+          final jsonResponse = jsonDecode(response.body);
+          if (jsonResponse['success'] == true && jsonResponse['imageData'] != null) {
+            final imageData = jsonResponse['imageData'];
+            debugPrint('🖼️ Base64 이미지 데이터 수신 완료');
+            return imageData;
+          } else {
+            throw Exception('이미지 데이터가 없습니다');
+          }
+        } catch (e, stackTrace) {
+          debugPrint('💥 이미지 데이터 처리 중 오류 발생');
+          debugPrint('Error: $e');
+          debugPrint('Stack trace: $stackTrace');
+          return null;
+        }
       } else {
-        debugPrint(
-          '❌ 지브리 이미지 생성 실패\n'
-          'Status: ${response.statusCode}\n'
-          'Error: ${response.body}',
-        );
-        return null;
+        throw Exception('이미지 생성 실패: ${response.body}');
       }
     } catch (e, stackTrace) {
       debugPrint(

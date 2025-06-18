@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:async';
 import 'package:http/http.dart' as http;
 import 'package:relate_x_front_main/constants/api_config.dart';
+import 'package:relate_x_front_main/constants/api_headers.dart';
 
 class AuthController {
   static final String _authBase = '${ApiConfig.baseUrl}/auth';
@@ -20,9 +21,7 @@ class AuthController {
     try {
       final response = await http.post(
         Uri.parse('$_authBase/signup'),
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: apiHeaders,
         body: jsonEncode({
           'name': name,
           'gender': genderValue,
@@ -86,9 +85,7 @@ class AuthController {
     final response = await http
         .post(
           Uri.parse('$_authBase/login'),
-          headers: {
-            'Content-Type': 'application/json',
-          },
+            headers: apiHeaders,
           body: jsonEncode({
             'user_id': username,
             'password': password,
@@ -115,7 +112,5 @@ class AuthController {
     print('🚨 로그인 요청 중 알 수 없는 오류 발생: $e');
     return null;
   }
-
-
   }
 }

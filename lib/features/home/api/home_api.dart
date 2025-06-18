@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:relate_x_front_main/constants/api_config.dart';
+import 'package:relate_x_front_main/constants/api_headers.dart';
 import 'package:flutter/foundation.dart';
 
 
@@ -16,7 +17,7 @@ class HomeApi {
     try {
       final response = await http.get(
         uri,
-        headers: {},
+        headers: apiHeaders,
       );
 
       print('[DEBUG] 📥 응답 상태: ${response.statusCode}');
@@ -54,9 +55,7 @@ class HomeApi {
 
         final response = await http.post(
           uri,
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: apiHeaders,
           body: jsonEncode(dataWithUserId),
         );
 
@@ -75,6 +74,7 @@ class HomeApi {
       // 🖼 이미지 포함 기록
       final request = http.MultipartRequest('POST', uri);
       request.headers.addAll({
+        ...apiHeaders,
         'Content-Type': 'multipart/form-data',
       });
 
@@ -120,9 +120,7 @@ class HomeApi {
 
       final response = await http.delete(
         Uri.parse('$_homeBase/home/records/$id'),
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: apiHeaders,
       );
 
       debugPrint('[DEBUG] 📥 응답 상태 코드: ${response.statusCode}');
@@ -141,7 +139,7 @@ class HomeApi {
     try {
       final response = await http.get(
         Uri.parse('$_homeBase/record/options?userId=$userId'),
-        headers: {'Content-Type': 'application/json'},
+        headers: apiHeaders,
       );
 
       print('Response status: ${response.statusCode}');
@@ -179,7 +177,7 @@ class HomeApi {
     try {
       final response = await http.post(
         Uri.parse('$_homeBase/record/options?userId=$userId'),
-        headers: {'Content-Type': 'application/json'},
+        headers: apiHeaders,
         body: json.encode(options),
       );
 
@@ -209,7 +207,7 @@ class HomeApi {
     try {
       final response = await http.post(
         Uri.parse('$_homeBase/record/options/add?userId=$userId'),
-        headers: {'Content-Type': 'application/json'},
+        headers: apiHeaders,
         body: json.encode({
           'category': category,
           'value': value,
